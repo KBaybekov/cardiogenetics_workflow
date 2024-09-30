@@ -1,0 +1,25 @@
+igor:
+  align:
+    trim_galore: ['{} --length 35 --output_dir {} --cores {} --paired {}', 
+                  [trim_galore, tmp_dir, threads, " ".join(raw_fastqs)]]
+    trimmomatic: ['java -jar {} PE -threads {} {} -baseout {}{}.fq SLIDINGWINDOW:4:20 HEADCROP:15 MINLEN:35',
+                  [trimmomatic, threads, " ".join(trim_galore_fastqs), tmp_dir, basename]]
+    fastqc: ['{} --quiet --threads 2 -o {} {}{}*P.fq', 
+             [fastqc, qc_dir, tmp_dir, basename]]
+
+  variant_calling:
+    freebayes: ['{} -f {} --standard-filters --report-genotype-likelihood-max --min-coverage 10 --min-alternate-qsum 50 --min-alternate-count 5 --min-alternate-fraction 0.2 {} > {}',
+                [freebayes, ref_fasta, abra_bam, vcf_freebayes]]
+
+local:
+  align:
+    trim_galore: ['{} --length 30 --output_dir {} --cores {} --paired {}',
+                  [trim_galore, tmp_dir, threads, " ".join(raw_fastqs)]]
+    trimmomatic: ['java -jar {} PE -threads {} {} -baseout {}{}.fq SLIDINGWINDOW:4:20 HEADCROP:10 MINLEN:30',
+                  [trimmomatic, threads, " ".join(trim_galore_fastqs), tmp_dir, basename]]
+    fastqc: ['{} --quiet --threads 2 -o {} {}{}*P.fq', 
+             [fastqc, qc_dir, tmp_dir, basename]]
+
+  variant_calling:
+    freebayes: ['{} -f {} --standard-filters --report-genotype-likelihood-max --min-coverage 8 --min-alternate-qsum 50 --min-alternate-count 3 --min-alternate-fraction 0.1 {} > {}',
+                [freebayes, ref_fasta, abra_bam, vcf_freebayes]]
