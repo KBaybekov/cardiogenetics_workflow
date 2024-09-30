@@ -1,3 +1,5 @@
+import subprocess
+
 class CommandExecutor:
     @staticmethod
     def run_command(cmd: str, cmd_title: str, sample_name: str):

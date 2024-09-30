@@ -1,0 +1,20 @@
+prolog: "pipeline v0.3"
+epilog: "(c) Kirill Baybekov"
+input_dir: "Папка с исходными файлами"
+output_dir: "Папка для результатов"
+threads: "Количество потоков для анализа (16)"
+ref: "Путь к референсному файлу FASTA"
+place: "[igor|local] Место запуска пайплайна"
+sequence_mode: "[WES|WGS] Тип секвенирования (WES)"
+stage: |
+  [all|trim|align|variant_calling|annotation|excel_postprocessing] Какую стадию запускать ("all"). 
+  Возможные значения:
+    - all: полный проход пайплайна
+    - align: подготовка BAM-файлов
+    - variant_calling: генерация VCF
+    - annotation: аннотация вариантов
+    - excel_postprocessing: постобработка файлов XLSX
+exclude_samples: "Образцы для исключения из анализа (разделённые запятой)"
+include_samples: "Образцы для включения в анализ (разделённые запятой)"
+filter_common_variants: "Образцы, для которых включён фильтр по частоте"
+variant_frequency_threshold: "Значение частоты встречаемости варианта; варианты, встречающиеся выше указанного значения, в результаты включены не будут (0.15)"

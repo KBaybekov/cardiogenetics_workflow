@@ -1,27 +1,51 @@
+from utils import *
 import os
-import subprocess
 from typing import List
 
 class PipelineManager:
-    def __init__(self, folder: str, threads: int, ref: str, place: str, mode: str, stages: List[str], include_samples: List[str], exclude_samples: List[str]):
-        self.folder = folder
-        self.threads = threads
-        self.ref = ref
-        self.place = place
-        self.mode = mode
-        self.stages = stages
-        self.include_samples = include_samples
-        self.exclude_samples = exclude_samples
-        self.envs, self.binaries = self.get_env_list(place)
-        self.res_dir, self.tmp_dir, self.bam_dir, self.vcf_dir, self.qc_dir, self.annotation_dir, self.excel_dir = self.get_folders(folder)
-        self.stage_vars = {
-            'align': [self.folder, self.bam_dir, '_R1.fastq.gz'],
-            'variant_calling': [self.bam_dir, self.vcf_dir, '.bam'],
-            'annotation': [self.vcf_dir, self.annotation_dir, '.vcf'],
-            'excel_postprocessing': [self.annotation_dir, self.excel_dir, '.xlsx']
-        }
-        self.log = f'{self.res_dir}log.txt'
-        self.errlog = f'{self.res_dir}err_log.txt'
+    def __init__(self, args):
+        """
+        Конструктор, принимающий аргументы командной строки и инициализирующий параметры пайплайна.
+        """
+        # Извлекаем параметры из args
+        self.input_dir = args.input_dir
+        self.output_dir = args.output_dir
+        self.threads = args.threads
+        self.ref = args.ref
+        self.place = args.place
+        self.mode = args.mode
+        self.stages = args.stage
+        self.include_samples = args.include_samples
+        self.exclude_samples = args.exclude_samples
+        self.filter_common_variants = args.filter_common_variants
+        self.variant_frequency_threshold = args.variant_frequency_threshold
+
+        # Инициализируем окружения и бинарные файлы
+        self.envs, self.binaries = self.get_env_list(self.place)
+
+        # Загружаем переменные для стадий
+        for stage in self.stages:
+            stage_vars = load_yaml('config/stage_vars.yaml')[stage]
+            #ДОДЕЛАТЬ
+
+        # Создаём директории для результатов
+        self.folders = self.get_folders(self.input_dir, self.output_dir)
+        self.res_dir, self.tmp_dir, self.bam_dir, self.vcf_dir, self.qc_dir, self.annotation_dir, self.excel_dir = self.get_folders(self.folder)
+
+        # Лог файлы
+        self.log_dir = os.path.join(self.res_dir, 'Logs')
+        os.makedirs(self.log_dir, exist_ok=True)
+        self.log = f'{self.log_dir}/log.txt'
+        self.errlog = f'{self.log_dir}/err_log.txt'
+        
+        # Логи
+        self.log_dir = os.path.join(self.res_dir, 'Logs')
+        os.makedirs(self.log_dir, exist_ok=True)
+        self.log = os.path.join(self.log_dir, 'log.yaml')
+        self.errlog = os.path.join(self.log_dir, 'err_log.yaml')
+
+        # Сохраняем все начальные параметры в лог
+        self.save_to_log('init_config', self.__dict__)
 
     def get_folders(self, dir:str):
         res_dir = f'{dir}result_pipeline/'
@@ -41,32 +65,11 @@ class PipelineManager:
         
         return res_dir, tmp_dir, bam_dir, vcf_dir, qc_dir, ann_dir, excel_dir
 
-    def get_env_list(self, place: str):
-        if place == 'igor':
-            envs = {'samtools': 'genetico', 'freebayes': 'genetico', 'multiqc': 'genetico', 'cravat': 'cravat'}
-            binaries = {
-                'trim_galore': 'trim_galore',
-                'trimmomatic': '/usr/share/java/trimmomatic-0.39.jar',
-                'fastqc': 'fastqc',
-                'samblaster': 'samblaster',
-                'samtools': 'samtools',
-                'abra2': '-Xmx48G -jar /root/miniforge3/envs/genetico/share/abra2-2.24-1/abra2.jar',
-                'freebayes': 'freebayes',
-                'multiqc': 'multiqc',
-                'cravat': self.conda_run(envs['cravat'], 'oc')
-            }
-        else:
-            envs = {'trim_galore': 'trim_galore', 'fastqc': 'fastqc'}
-            binaries = {
-                'trim_galore': self.conda_run(envs['trim_galore'], 'trim_galore'),
-                'trimmomatic': '/home/medgen/programms/trimmomatic/trimmomatic-0.39.jar',
-                'fastqc': self.conda_run(envs['fastqc'], 'fastqc'),
-                'samblaster': '~/github/samblaster/samblaster',
-                'samtools': 'samtools',
-                'abra2': '-Xmx12G -jar ~/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar',
-                'freebayes': 'freebayes',
-                'multiqc': 'multiqc'
-            }
+    def get_env_list(self, place):
+        # Загружаем окружения и бинарные файлы из envs.yaml
+        env_config = load_yaml('config/envs.yaml')[place]
+        envs = env_config['envs']
+        binaries = env_config['binaries']
         return envs, binaries
 
     def conda_run(self, env, command):
