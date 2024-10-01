@@ -1,49 +1,49 @@
 all:
   folders:
-    input_dir:
-      log_dir: "Log"
-    output_dir:
-      tmp_dir: "tmp"
-      qc_dir:  "QC"
-      bam_dir: "bam"
-      vcf_dir: "vcf"
-      ann_dir: "annotation"
-      excel_dir: "excel"
+    input:
+    output:
+      log: "Log"
+      tmp: "tmp"
+      qc:  "QC"
+      bam: "bam"
+      vcf: "vcf"
+      ann: "annotation"
+      excel: "excel"
   extension: "_R1.fastq.gz"
 
 align:
   folders:
-    input_dir:
-      log_dir: "Log"
-    output_dir:
-      tmp_dir: "tmp"
-      qc_dir:  "QC"
-      bam_dir: "bam"
+    input:
+    output:
+      log: "Log"
+      tmp: "tmp"
+      qc:  "QC"
+      bam: "bam"
   extension: "_R1.fastq.gz"
 
 variant_calling:
   folders:
-    input_dir:
-      log_dir: "Log"
-    output_dir:
-      tmp_dir: "tmp"
-      vcf_dir: "vcf"
+    input:
+    output:
+      log: "Log"
+      tmp: "tmp"
+      vcf: "vcf"
   extension: ".bam"
 
 annotation:
   folders:
-    input_dir:
-      log_dir: "Log"
-    output_dir:
-      tmp_dir: "tmp"
-      ann_dir: "annotation"
+    input:
+    output:
+      log: "Log"
+      tmp: "tmp"
+      ann: "annotation"
   extension: ".vcf.gz"
 
 excel_postprocessing:
   folders:
-    input_dir:
-      log_dir: "Log"
-    output_dir:
-      tmp_dir: "tmp"
-      excel_dir: "excel"
+    input:
+    output:
+      log: "Log"
+      tmp: "tmp"
+      excel: "excel"
   extension: ".tsv"

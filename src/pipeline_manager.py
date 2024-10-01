@@ -1,83 +1,96 @@
 from utils import *
+from stage_runner import StageRunner
 import os
-from typing import List
 
 class PipelineManager:
     def __init__(self, args):
         """
         Конструктор, принимающий аргументы командной строки и инициализирующий параметры пайплайна.
         """
-        # Извлекаем параметры из args
-        self.input_dir = args.input_dir
-        self.output_dir = args.output_dir
-        self.threads = args.threads
-        self.ref = args.ref
-        self.place = args.place
-        self.mode = args.mode
-        self.stages = args.stage
-        self.include_samples = args.include_samples
-        self.exclude_samples = args.exclude_samples
-        self.filter_common_variants = args.filter_common_variants
-        self.variant_frequency_threshold = args.variant_frequency_threshold
+        # Преобразование args в словарь
+        self.args = vars(args)
 
         # Инициализируем окружения и бинарные файлы
-        self.envs, self.binaries = self.get_env_list(self.place)
+        self.current_dir = os.getcwd()
+        self.envs, self.binaries = self.get_env_list(self.args['place'])
+        self.all_stages_vars = load_yaml('config/stage_vars.yaml')
+        self.folders, self.extensions = self.get_stage_vars(self.args['stage'], self.input_dir, self.output_dir, self.all_stages_vars)
 
-        # Загружаем переменные для стадий
-        for stage in self.stages:
-            stage_vars = load_yaml('config/stage_vars.yaml')[stage]
-            #ДОДЕЛАТЬ
-
-        # Создаём директории для результатов
-        self.folders = self.get_folders(self.input_dir, self.output_dir)
-        self.res_dir, self.tmp_dir, self.bam_dir, self.vcf_dir, self.qc_dir, self.annotation_dir, self.excel_dir = self.get_folders(self.folder)
-
-        # Лог файлы
-        self.log_dir = os.path.join(self.res_dir, 'Logs')
-        os.makedirs(self.log_dir, exist_ok=True)
-        self.log = f'{self.log_dir}/log.txt'
-        self.errlog = f'{self.log_dir}/err_log.txt'
-        
         # Логи
-        self.log_dir = os.path.join(self.res_dir, 'Logs')
-        os.makedirs(self.log_dir, exist_ok=True)
-        self.log = os.path.join(self.log_dir, 'log.yaml')
-        self.errlog = os.path.join(self.log_dir, 'err_log.yaml')
+        self.log_dir = os.path.join(self.args['output_dir'], 'Logs/')
+        self.log = f'{self.log_dir}/stdout_log.txt'
+        self.errlog = f'{self.log_dir}/stderr_log.txt'
+        self.log_dict = os.path.join(self.log_dir, 'log.yaml')
+        self.errlog_dict = os.path.join(self.log_dir, 'err_log.yaml')
 
+        # Преобразуем все начальные параметры в словарь
+        self.init_configs = vars(self)
+        # Извлекаем в отдельный словарь пути к файлам логов
+        self.logs = {k: v for k, v in self.init_configs.items() if k in ['log', 'errlog', 'log_dict', 'errlog_dict']}
         # Сохраняем все начальные параметры в лог
-        self.save_to_log('init_config', self.__dict__)
-
-    def get_folders(self, dir:str):
-        res_dir = f'{dir}result_pipeline/'
-        qc_dir = f'{res_dir}QC/'
-        bam_dir = f'{res_dir}bam/'
-        vcf_dir = f'{res_dir}vcf/'
-        ann_dir = f'{res_dir}annotation/'
-        excel_dir = f'{res_dir}excel/'
-        tmp_dir = f'{dir}tmp/'
-
-        os.makedirs(tmp_dir, exist_ok=True)
-        os.makedirs(bam_dir, exist_ok=True)
-        os.makedirs(vcf_dir, exist_ok=True)
-        os.makedirs(ann_dir, exist_ok=True)
-        os.makedirs(excel_dir, exist_ok=True)
-        os.makedirs(f'{qc_dir}multiqc/', exist_ok=True)
+        save_yaml('init_configs', self.log_dir, self.init_configs)
         
-        return res_dir, tmp_dir, bam_dir, vcf_dir, qc_dir, ann_dir, excel_dir
+
+        # Запускаем пайплайн
+        self.run_pipeline(stages=self.args['stage'], args=self.args, envs=self.envs,
+                          binaries=self.binaries, folders=self.folders,
+                          extensions=self.extensions, logs=self.logs)
+
+    def get_stage_vars(self, stages: list, input_dir:str, output_dir:str, all_stages_vars:dict):
+        """
+        Создаёт директории на основе stage_vars, не обращаясь напрямую к input_dir и output_dir.
+        
+        :param stages: Список этапов пайплайна
+        :param input_dir: Путь к директории для входных данных
+        :param output_dir: Путь к директории для выходных данных
+        :param all_stages_vars: Словарь с информацией о папках и расширениях для каждого этапа пайплайна
+        :return: Словарь с полными путями к созданным директориям
+        """
+
+        # Создаём список директорий для каждого этапа
+        folders  = {
+            stage: {
+                **{key: os.path.join(input_dir, f'{value}/') for key, value in all_stages_vars[stage]['folders'].get('input_dir', {}).items()},
+                **{key: os.path.join(output_dir, f'{value}/') for key, value in all_stages_vars[stage]['folders'].get('output_dir', {}).items()}
+            }
+            for stage in stages
+        }
+
+        extensions = {stage: {all_stages_vars[stage]['extension']}
+            for stage in stages}
+
+        # Возвращаем словарь с путями
+        return folders, extensions
 
     def get_env_list(self, place):
+        """
+        Загружает окружения и бинарные файлы из YAML-файла для заданного места (place).
+        
+        :param place: Место выполнения пайплайна
+        :return: Словарь окружений и бинарных файлов
+        """
         # Загружаем окружения и бинарные файлы из envs.yaml
         env_config = load_yaml('config/envs.yaml')[place]
         envs = env_config['envs']
         binaries = env_config['binaries']
         return envs, binaries
 
-    def conda_run(self, env, command):
-        return f'conda run -n {env} {command}'
-
-    def run_pipeline(self):
-        for stage in self.stages:
+    def run_pipeline(self, stages:list, args:dict, envs:dict, binaries:dict, folders:dict, extensions:dict, logs:dict):
+        """
+        Основной метод для запуска всех стадий пайплайна.
+        
+        :param stages: Список этапов пайплайна
+        :param args: Аргументы командной строки
+        :param envs: Словарь с окружениями
+        :param binaries: Словарь с путями к бинарным файлам
+        :param folders: Словарь с директориями для каждой стадии
+        :param extensions: Словарь с расширениями для файлов каждой стадии
+        :param logs: Словарь с путями к логам
+        """
+        for stage in stages:
             print(f'Running stage: {stage}')
-            if stage == 'align':
-                os.system('export LC_ALL=en_US.UTF-8')
-            StageRunner(self).run_stage(stage)
+            # Создаём директории для результатов
+            for path in folders[stage].values():
+                os.makedirs(path, exist_ok=True)
+            # Формирование пула команд и их выполнение
+            StageRunner(self).run_pipeline(args, envs, binaries, folders, extensions, logs)

@@ -35,6 +35,9 @@ def parse_cli_args():
         value = getattr(args, arg)  # Динамически получаем значение аргумента
         setattr(args, arg, value.split(',') if value else [])
 
+    if args.stage !='':
+        args.stage = args.stage.split(',')
+
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
     for arg, default_value in default_values[args.place].items():
         if getattr(args, arg) == '':
