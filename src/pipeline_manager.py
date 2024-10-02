@@ -1,6 +1,7 @@
 from utils import *
 from stage_runner import StageRunner
 import os
+from datetime import date
 
 class PipelineManager:
     def __init__(self, args):
@@ -15,9 +16,10 @@ class PipelineManager:
         self.envs, self.binaries = self.get_env_list(self.args['place'])
         self.all_stages_vars = load_yaml('config/stage_vars.yaml')
         self.folders, self.extensions = self.get_stage_vars(self.args['stage'], self.input_dir, self.output_dir, self.all_stages_vars)
+        self.today = date.today().strftime('%d.%m.%Y')
 
         # Логи
-        self.log_dir = os.path.join(self.args['output_dir'], 'Logs/')
+        self.log_dir = os.path.join(self.args['output_dir'], 'Logs/', f'{self.today}_{'-'.join(self.args['stage'])}')
         self.log = f'{self.log_dir}/stdout_log.txt'
         self.errlog = f'{self.log_dir}/stderr_log.txt'
         self.log_dict = os.path.join(self.log_dir, 'log.yaml')
@@ -93,4 +95,4 @@ class PipelineManager:
             for path in folders[stage].values():
                 os.makedirs(path, exist_ok=True)
             # Формирование пула команд и их выполнение
-            StageRunner(self).run_pipeline(args, envs, binaries, folders, extensions, logs)
+            StageRunner(self).run_stage(stage)
