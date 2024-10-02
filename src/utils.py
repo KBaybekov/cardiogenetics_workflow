@@ -1,16 +1,20 @@
 import yaml
 import os
 
-def load_yaml(file_path):
+def load_yaml(file_path, subsection=''):
     """
     Универсальная функция для загрузки данных из YAML-файла.
     
     :param file_path: Путь к YAML-файлу
+    :param subsection: Этап пайплайна 
     :return: Словарь с данными из YAML-файла
     """
     with open(file_path, 'r') as file:
-        return yaml.safe_load(file)
-    
+        if subsection == '':
+            return yaml.safe_load(file)
+        else:
+            return yaml.safe_load(file)[subsection]
+        
 def save_yaml(filename, path, data):
     """
     Сохраняет словарь в файл в формате YAML.
@@ -26,15 +30,14 @@ def save_yaml(filename, path, data):
     with open(file_path, 'w') as yaml_file:
         yaml.dump(data, yaml_file, default_flow_style=False)
 
-def generate_cmd_data(in_samples:list, ex_samples:list,
-                      folders:dict, extension:str,
+def generate_cmd_data(args:dict,folders:dict, extension:str,
                       envs:dict, binaries:dict,
                       stage:str, log_dir:str):
-    
+    in_samples, ex_samples = args['include_samples'], args['exclude_samples']
     samples = generate_sample_list(in_samples, ex_samples, folders['input_dir'], extension)
     cmd_data = {}
     for sample in samples:
-        commands = generate_commands(sample, stage, envs, binaries, folders)
+        commands = generate_commands(sample, stage, args, envs, binaries, folders)
         cmd_data.update({sample:commands})
     save_yaml('cmd_data', log_dir, cmd_data)
     return cmd_data
@@ -51,7 +54,14 @@ def generate_sample_list(in_samples:list, ex_samples:list,
 
 def generate_commands(sample:str, stage:str,
                       envs:dict, binaries:dict,
-                      folders:dict):
+                      folders:dict, args:dict):
+    
+    # Загружаем шаблоны файловых имён
+    filenames_templates = load_yaml('config/filenames.yaml', stage)
+    # Загружаем шаблоны команд
+    cmd_templates = load_yaml('config/commands.yaml', stage)
+
+
     
     filename = sample.split('/')[-1]
     #print(filename)

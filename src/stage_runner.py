@@ -7,11 +7,17 @@ class StageRunner:
         self.pipeline_manager = pipeline_manager
         
     def run_stage(self, stage: str):
-        x = self.pipeline_manager
+        print(f'Running stage: {stage}')
 
-        cmd_data = generate_cmd_data(in_samples=x.args['include_samples'], ex_samples=x.args['exclude_samples'],
-                                     folders=x.folders, extension=x.extensions[stage], envs=x.envs,
-                                     binaries=x.binaries, stage=stage, log_dir=x.log_dir)
+        x = self.pipeline_manager
+        # Создаём директории для результатов
+        for path in x.folders[stage].values():
+            os.makedirs(path, exist_ok=True)
+        
+        cmd_data = generate_cmd_data(args=x.args, folders=x.folders,
+                                     extension=x.extensions[stage], envs=x.envs,
+                                     binaries=x.binaries, stage=stage,
+                                     log_dir=x.log_dir)
         for sample in cmd_data.keys():
             for cmd_name, (command, args) in cmd_data[sample].items():
                 shell_command = command.format(*args)

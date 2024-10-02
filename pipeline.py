@@ -6,13 +6,13 @@ def main():
     args = parse_cli_args()
 
     # Загрузка конфигураций и команд в зависимости от места запуска (place)
-    commands = load_yaml('config/commands.yaml')
+    commands = load_yaml(file_path='config/commands.yaml')
 
     # Инициализация пайплайна
     pipeline = PipelineManager(args)
 
     # Запуск стадий пайплайна
-    stage_runner = StageRunner(pipeline, commands)
+    stage_runner = StageRunner(pipeline.__dict__, stage)
     for stage in args.stage.split(','):
         stage_runner.run_stage(stage)
 

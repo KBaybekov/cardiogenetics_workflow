@@ -14,7 +14,7 @@ class PipelineManager:
         # Инициализируем окружения и бинарные файлы
         self.current_dir = os.getcwd()
         self.envs, self.binaries = self.get_env_list(self.args['place'])
-        self.all_stages_vars = load_yaml('config/stage_vars.yaml')
+        self.all_stages_vars = load_yaml(file_path='config/stage_vars.yaml')
         self.folders, self.extensions = self.get_stage_vars(self.args['stage'], self.input_dir, self.output_dir, self.all_stages_vars)
         self.today = date.today().strftime('%d.%m.%Y')
 
@@ -72,27 +72,7 @@ class PipelineManager:
         :return: Словарь окружений и бинарных файлов
         """
         # Загружаем окружения и бинарные файлы из envs.yaml
-        env_config = load_yaml('config/envs.yaml')[place]
+        env_config = load_yaml(file_path='config/envs.yaml',subsection=place)
         envs = env_config['envs']
         binaries = env_config['binaries']
         return envs, binaries
-
-    def run_pipeline(self, stages:list, args:dict, envs:dict, binaries:dict, folders:dict, extensions:dict, logs:dict):
-        """
-        Основной метод для запуска всех стадий пайплайна.
-        
-        :param stages: Список этапов пайплайна
-        :param args: Аргументы командной строки
-        :param envs: Словарь с окружениями
-        :param binaries: Словарь с путями к бинарным файлам
-        :param folders: Словарь с директориями для каждой стадии
-        :param extensions: Словарь с расширениями для файлов каждой стадии
-        :param logs: Словарь с путями к логам
-        """
-        for stage in stages:
-            print(f'Running stage: {stage}')
-            # Создаём директории для результатов
-            for path in folders[stage].values():
-                os.makedirs(path, exist_ok=True)
-            # Формирование пула команд и их выполнение
-            StageRunner(self).run_stage(stage)
