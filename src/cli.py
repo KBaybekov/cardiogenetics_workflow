@@ -18,9 +18,9 @@ def parse_cli_args():
     parser.add_argument('-o', '--output_dir', required=True, help=arg_descriptions['output_dir'])
     parser.add_argument('-t', '--threads', default='', help=arg_descriptions['threads'])
     parser.add_argument('-r', '--ref', default='', help=arg_descriptions['ref'])
-    parser.add_argument('-p', '--place', required=True, choices=['medgen', 'local'], help=arg_descriptions['place'])
-    parser.add_argument('-m', '--seq_mode', default='', choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])
-    parser.add_argument('-s', '--stage', default='', help=arg_descriptions['stage'])
+    parser.add_argument('-mc', '--machine', required=True, choices=['medgen', 'local'], help=arg_descriptions['machine'])
+    parser.add_argument('-sm', '--seq_mode', default='', choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])
+    parser.add_argument('-m', '--module', default='', help=arg_descriptions['module'])
     parser.add_argument('-es', '--exclude_samples', default='', help=arg_descriptions['exclude_samples'])
     parser.add_argument('-is', '--include_samples', default='', help=arg_descriptions['include_samples'])
     parser.add_argument('-f', '--filter_common_variants', default='', help=arg_descriptions['filter_common_variants'])
@@ -35,11 +35,11 @@ def parse_cli_args():
         value = getattr(args, arg)  # Динамически получаем значение аргумента
         setattr(args, arg, value.split(',') if value else [])
 
-    if args.stage !='':
-        args.stage = args.stage.split(',')
+    if args.module != '':
+        args.module = args.module.split(',')
 
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
-    for arg, default_value in default_values[args.place].items():
+    for arg, default_value in default_values[args.machine].items():
         if getattr(args, arg) == '':
             setattr(args, arg, default_value)
 

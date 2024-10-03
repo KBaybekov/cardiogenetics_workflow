@@ -1,5 +1,5 @@
 from utils import *
-from stage_runner import StageRunner
+from module_runner import ModuleRunner
 import os
 from datetime import date
 
@@ -11,15 +11,16 @@ class PipelineManager:
         # Преобразование args в словарь
         self.args = vars(args)
 
-        # Инициализируем окружения и бинарные файлы
+        # Получаем данные о запуске
         self.current_dir = os.getcwd()
-        self.envs, self.binaries = self.get_env_list(self.args['place'])
-        self.all_stages_vars = load_yaml(file_path='config/stage_vars.yaml')
-        self.folders, self.extensions = self.get_stage_vars(self.args['stage'], self.input_dir, self.output_dir, self.all_stages_vars)
         self.today = date.today().strftime('%d.%m.%Y')
 
+        # Загружаем переменные для каждой стадии пайплайна
+        self.folders, self.source_extensions = self.get_stage_vars(self.args['module'], self.input_dir, self.output_dir, self.all_stages_vars)
+        
+
         # Логи
-        self.log_dir = os.path.join(self.args['output_dir'], 'Logs/', f'{self.today}_{'-'.join(self.args['stage'])}')
+        self.log_dir = os.path.join(self.args['output_dir'], 'Logs/', f'{self.today}_{'-'.join(self.args['module'])}')
         self.log = f'{self.log_dir}/stdout_log.txt'
         self.errlog = f'{self.log_dir}/stderr_log.txt'
         self.log_dict = os.path.join(self.log_dir, 'log.yaml')
@@ -31,12 +32,35 @@ class PipelineManager:
         self.logs = {k: v for k, v in self.init_configs.items() if k in ['log', 'errlog', 'log_dict', 'errlog_dict']}
         # Сохраняем все начальные параметры в лог
         save_yaml('init_configs', self.log_dir, self.init_configs)
-        
 
-        # Запускаем пайплайн
-        self.run_pipeline(stages=self.args['stage'], args=self.args, envs=self.envs,
-                          binaries=self.binaries, folders=self.folders,
-                          extensions=self.extensions, logs=self.logs)
+    def load_machine_vars(self, config_path:str, machine:str):
+        """
+        Загружает данные о средах и исполняемых файлах указанной машины, необходимых для пайплайна, и добавляет их в пространство объекта класса.
+        
+        :param path: Путь к директории, где хранится YAML-файл.
+        :param machine: Наименование машины, использованное в YAML-файле.
+        """
+        # Загружаем данные из YAML-файла
+        machine_data = load_yaml(file_path=f'{config_path}machines.yaml', subsection=machine)
+        envs = machine_data.get('envs', {})
+        binaries = machine_data.get('binaries', {})
+        env_command_template = machine_data.get('env_command', '')
+
+        # Создаём атрибут executables
+        executables = {}
+        # Проходим по всем ключам в binaries
+        for key, binary in binaries.items():
+            if key in envs:
+                # Если ключ есть в envs, заменяем команду по шаблону env_command
+                executables.update({key: env_command_template.replace('env', envs[key]).replace('binary', binary)})
+            else:
+                # Если ключа нет в envs, оставляем значение из binaries
+                executables.update({key: binary})
+        # Устанавливаем атрибут executables в пространство экземпляра класса
+        setattr(self, 'executables', executables)
+
+    def run_pipeline():
+
 
     def get_stage_vars(self, stages: list, input_dir:str, output_dir:str, all_stages_vars:dict):
         """
@@ -51,28 +75,15 @@ class PipelineManager:
 
         # Создаём список директорий для каждого этапа
         folders  = {
-            stage: {
-                **{key: os.path.join(input_dir, f'{value}/') for key, value in all_stages_vars[stage]['folders'].get('input_dir', {}).items()},
-                **{key: os.path.join(output_dir, f'{value}/') for key, value in all_stages_vars[stage]['folders'].get('output_dir', {}).items()}
+            module: {
+                **{key: os.path.join(input_dir, f'{value}/') for key, value in all_stages_vars[module]['folders'].get('input_dir', {}).items()},
+                **{key: os.path.join(output_dir, f'{value}/') for key, value in all_stages_vars[module]['folders'].get('output_dir', {}).items()}
             }
-            for stage in stages
+            for module in stages
         }
 
-        extensions = {stage: {all_stages_vars[stage]['extension']}
-            for stage in stages}
+        source_extensions = {module: {all_stages_vars[module]['source_extension']}
+            for module in stages}
 
         # Возвращаем словарь с путями
-        return folders, extensions
-
-    def get_env_list(self, place):
-        """
-        Загружает окружения и бинарные файлы из YAML-файла для заданного места (place).
-        
-        :param place: Место выполнения пайплайна
-        :return: Словарь окружений и бинарных файлов
-        """
-        # Загружаем окружения и бинарные файлы из envs.yaml
-        env_config = load_yaml(file_path='config/envs.yaml',subsection=place)
-        envs = env_config['envs']
-        binaries = env_config['binaries']
-        return envs, binaries
+        return folders, source_extensions

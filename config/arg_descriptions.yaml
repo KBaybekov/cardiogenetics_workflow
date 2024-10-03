@@ -4,10 +4,10 @@ input_dir: "Папка с исходными файлами"
 output_dir: "Папка для результатов"
 threads: "Количество потоков для анализа (16)"
 ref: "Путь к референсному файлу FASTA"
-place: "[medgen|local] Место запуска пайплайна"
+machine: "[medgen|local] Место запуска пайплайна"
 sequence_mode: "[WES|WGS] Тип секвенирования (WES)"
-stage: |
-  [all|trim|align|variant_calling|annotation|excel_postprocessing] Какую стадию запускать ("all"). 
+module: |
+  [all|trim|align|variant_calling|annotation|excel_postprocessing] Какой модуль запускать ("all"). 
   Возможные значения:
     - all: полный проход пайплайна
     - align: подготовка BAM-файлов

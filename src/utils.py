@@ -1,19 +1,31 @@
 import yaml
 import os
 
-def load_yaml(file_path, subsection=''):
+def load_yaml(file_path:str, subsection:str = ''):
     """
     Универсальная функция для загрузки данных из YAML-файла.
+
+    :param file_path: Путь к YAML-файлу. Ожидается строка, указывающая на местоположение файла с данными.
+    :param subsection: Опциональный параметр. Если передан, функция вернёт только данные из указанной
+                       секции (например, конкретного этапа пайплайна). Если пусто, возвращаются все данные.
+                       По умолчанию - пустая строка, что означает возврат всего содержимого файла.
     
-    :param file_path: Путь к YAML-файлу
-    :param subsection: Этап пайплайна 
-    :return: Словарь с данными из YAML-файла
+    :return: Возвращает словарь с данными из YAML-файла. Если указан параметр subsection и он присутствует
+             в YAML, возвращается соответствующая секция, иначе — всё содержимое файла.
     """
+    # Открываем YAML-файл для чтения
     with open(file_path, 'r') as file:
-        if subsection == '':
-            return yaml.safe_load(file)
+        data = yaml.safe_load(file)  # Загружаем содержимое файла в словарь с помощью safe_load
+    
+    # Если subsection не указан, возвращаем весь YAML-файл
+    if subsection == '':
+        return data
+    else:
+        # Если subsection указан и существует в файле, возвращаем только эту секцию
+        if subsection  in data.keys():
+            return data[subsection]
         else:
-            return yaml.safe_load(file)[subsection]
+            raise ValueError(f"Раздел '{machine}' не найден в {file_path}")
         
 def save_yaml(filename, path, data):
     """
@@ -30,14 +42,25 @@ def save_yaml(filename, path, data):
     with open(file_path, 'w') as yaml_file:
         yaml.dump(data, yaml_file, default_flow_style=False)
 
+def load_templates(path: str = 'config/'):
+    configs = os.listdir(path)
+    for config in configs:
+        if config.endswith('.yaml'):
+            var_name = config.split('.')[0]  # Получаем имя переменной из имени файла
+            with open(os.path.join(path, config), 'r') as f:
+                globals()[var_name] = yaml.safe_load(f)  # Создаём глобальную переменную
+
+
+
+
 def generate_cmd_data(args:dict,folders:dict, extension:str,
                       envs:dict, binaries:dict,
-                      stage:str, log_dir:str):
+                      module:str, log_dir:str):
     in_samples, ex_samples = args['include_samples'], args['exclude_samples']
     samples = generate_sample_list(in_samples, ex_samples, folders['input_dir'], extension)
     cmd_data = {}
     for sample in samples:
-        commands = generate_commands(sample, stage, args, envs, binaries, folders)
+        commands = generate_commands(sample, module, args, envs, binaries, folders)
         cmd_data.update({sample:commands})
     save_yaml('cmd_data', log_dir, cmd_data)
     return cmd_data
@@ -52,14 +75,16 @@ def generate_sample_list(in_samples:list, ex_samples:list,
         samples =  [s for s in samples if not any(exclusion in s for exclusion in ex_samples)]
     return [f'{input_dir}{s}' for s in samples]
 
-def generate_commands(sample:str, stage:str,
+def generate_commands(sample:str, module:str,
                       envs:dict, binaries:dict,
                       folders:dict, args:dict):
     
     # Загружаем шаблоны файловых имён
-    filenames_templates = load_yaml('config/filenames.yaml', stage)
+    filenames = load_yaml('config/filenames.yaml', module)
     # Загружаем шаблоны команд
-    cmd_templates = load_yaml('config/commands.yaml', stage)
+    cmd_templates = load_yaml('config/commands.yaml', module)
+    #Генерируем команды для вызова исполняемых файлов
+
 
 
     
@@ -126,21 +151,21 @@ def generate_commands(sample:str, stage:str,
                                 [tmp_dir, basename]],
             }
 
-    if stage == 'all':
+    if module == 'all':
         return all_cmds
     
     cmd = {}
-    if stage == 'align':
+    if module == 'align':
         commands = ['trim_galore', 'trimmomatic', 'fastqc', 'aligning', 'samtools_sort', 'samtools_index', 'abra2', 'samtools_index_abra', 'remove_tmp_files']
-    elif stage == 'variant_calling':
+    elif module == 'variant_calling':
         commands = ['freebayes']
         #commands = ['freebayes', 'deepvariant', 'remove_tmp_files']
-    elif stage == 'annotation':
+    elif module == 'annotation':
         if 'freebayes' in sample:
             commands = ['annovar_freebayes', 'cravat_freebayes']
         elif 'deepvariant' in sample:
             commands = ['annovar_deepvariant', 'cravat_deepvariant']
-    elif stage == 'excel_postprocessing':
+    elif module == 'excel_postprocessing':
         commands = ['', '', '', '', '', '']
     for command in commands:
         cmd.update({command:all_cmds[command]})

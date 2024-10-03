@@ -1,0 +1,96 @@
+global:
+  folders:
+    input:
+    output:
+       log_dir: "Log"`
+  filenames:
+    filename: "sample.split('/')[-1]"
+    basename: "{filename.split('_')[0]}_{filename.split('_')[1]}"
+
+
+all:
+  folders:
+    input:
+    output:
+      tmp_dir: "tmp"
+      qc_dir:  "QC"
+      bam_dir: "bam"
+      vcf_dir: "vcf"
+      ann_dir: "annotation"
+      excel_dir: "excel"
+
+  source_extension: "_R1.fastq.gz"
+
+  filenames:
+    raw_fastqs: "[sample, sample.replace('_R1', '_R2')]"
+    trim_galore_fastqs: "[s.replace({folders["input_dir"]}, {folders["tmp_dir"]}).replace('.fastq.gz', '_val_{({filenames["raw_fastqs"]}.index(s)+1)}.fq.gz') for s in {filenames["raw_fastqs"]}]"
+    trimmomatic_fastqs: "' '.join(['{folders["tmp_dir"]}{filenames["basename"]}_{i}P.fq' for i in [1,2]])"
+    abra_bam: "{folders['bam_dir']}{filenames['basename']}_abra2.bam"
+    in_bam: "{folders['tmp_dir']}primary.bam"
+    sorted_bam: "{folders['tmp_dir']}sorted.bam"
+    tmp_vcf_freebayes: "{folders['tmp_dir']}{filenames['basename'}_freebayes.vcf"
+    vcf_freebayes: "{folders['vcf_dir']}{filenames['basename'}_freebayes.vcf"
+    tmp_vcf_deepvariant: "{folders['tmp_dir']}{filenames['basename'}_deepvariant.vcf"
+    vcf_deepvariant: "{folders['vcf_dir']}{filenames['basename'}_deepvariant.vcf"
+    gvcf_deepvariant: "{vcf_deepvariant.replace('vcf','gvcf')}"
+    merged_vcf: "{folders["vcf_dir"]}{filenames['basename'}_merged.vcf.gz"
+    annovar_vcf: "{folders['annotation_dir']}{filenames['basename'}_annovar"
+
+
+align:
+  filenames:
+    raw_fastqs: "[sample, sample.replace('_R1', '_R2')]"
+    trim_galore_fastqs: "[s.replace({folders["input_dir"]}, {folders["tmp_dir"]}).replace('.fastq.gz', '_val_{({filenames["raw_fastqs"]}.index(s)+1)}.fq.gz') for s in {filenames["raw_fastqs"]}]"
+    trimmomatic_fastqs: "' '.join(['{folders["tmp_dir"]}{filenames["basename"]}_{i}P.fq' for i in [1,2]])"
+    abra_bam: "{folders['bam_dir']}{filenames['basename']}_abra2.bam"
+    in_bam: "{folders['tmp_dir']}primary.bam"
+    sorted_bam: "{folders['tmp_dir']}sorted.bam"
+  
+  folders:
+    input:
+    output:
+      tmp_dir: "tmp"
+      qc_dir:  "QC"
+      bam_dir: "bam"
+  
+  source_extension: "_R1.fastq.gz"
+
+
+variant_calling:
+  folders:
+    input:
+    output:
+      tmp_dir: "tmp"
+      vcf_dir: "vcf"
+  
+  source_extension: ".bam"
+  
+  filenames:
+    abra_bam: "{folders['bam_dir']}{filenames['basename']}_abra2.bam"
+    vcf_freebayes: "{folders['vcf_dir']}{filenames['basename'}_freebayes.vcf"
+    vcf_deepvariant: "{folders['vcf_dir']}{filenames['basename'}_deepvariant.vcf.gz"
+    gvcf_deepvariant: "vcf_deepvariant.replace('vcf','gvcf')"
+
+
+annotation:
+  folders:
+    input:
+    output:
+      tmp_dir: "tmp"
+      ann_dir: "annotation"
+  
+  source_extension: ".vcf.gz"
+  
+  filenames:
+    annovar_vcf: "{folders['annotation_dir']}{filenames['basename'}_annovar"
+
+
+excel_postprocessing:
+  
+  folders:
+    input:
+    output:
+      tmp_dir: "tmp"
+      excel_dir: "excel"
+  
+  source_extension: ".tsv"

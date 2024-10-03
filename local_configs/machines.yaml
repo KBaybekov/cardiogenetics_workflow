@@ -14,6 +14,7 @@ medgen:
     freebayes: "freebayes"
     multiqc: "multiqc"
     cravat: "oc"
+  env_command: "conda run -n env binary"
 
 local:
   envs:

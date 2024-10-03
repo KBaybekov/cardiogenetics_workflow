@@ -1,14 +1,14 @@
 /my_pipeline_project
     /config
         main.config.yaml        # Основные настройки пайплайна (threads, ref_fasta, директории и т.д.)
-        commands.yaml           # Команды для различных стадий пайплайна (в зависимости от "place")
+        commands.yaml           # Команды для различных стадий пайплайна (в зависимости от "machine")
         stage_vars.yaml         # Параметры для стадий (входные/выходные директории, типы файлов)
         envs.yaml               # Информация об окружениях (conda environments, бинарные файлы для разных программ)
 
     /src
         __init__.py             # Инициализационный файл для модуля пайплайна
         pipeline_manager.py     # Основной класс для управления пайплайном (PipelineManager)
-        stage_runner.py         # Класс для выполнения стадий пайплайна (StageRunner)
+        module_runner.py         # Класс для выполнения стадий пайплайна (ModuleRunner)
         command_executor.py     # Класс для выполнения bash-команд (CommandExecutor)
         cli.py                  # Модуль для работы с CLI (argparse)
         utils.py                # Вспомогательные функции (например, чтение из файлов, обработка строк и т.д.)

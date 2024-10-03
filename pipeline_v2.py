@@ -8,9 +8,9 @@ def createParser():
     parser.add_argument('-f', '--folder', required=True, help=arg_descriptions['folder'])
     parser.add_argument('-t', '--threads', required=True, help=arg_descriptions['threads'])
     parser.add_argument('-r', '--ref', required=True, help=arg_descriptions['ref'])
-    parser.add_argument('-p', '--place', required=True, help=arg_descriptions['place'])
+    parser.add_argument('-p', '--machine', required=True, help=arg_descriptions['machine'])
     parser.add_argument('-m', '--mode', required=True, help=arg_descriptions['sequence_mode'])
-    parser.add_argument('-s', '--stage', default='all', help=arg_descriptions['stage'])
+    parser.add_argument('-s', '--module', default='all', help=arg_descriptions['module'])
     parser.add_argument('--exclude_samples', default=[], help=arg_descriptions['exclude_samples'])
     parser.add_argument('--include_samples', default=[], help=arg_descriptions['include_samples'])
     return parser
@@ -21,8 +21,8 @@ def list_from_str(string):
     else:
         return string.split(',')
 
-def get_env_list(place:str):
-    if place == 'medgen':
+def get_env_list(machine:str):
+    if machine == 'medgen':
         envs = {'samtools':'genetico',
                 'freebayes':'genetico',
                 'multiqc':'genetico',
@@ -71,9 +71,9 @@ def get_folders(dir:str):
 def conda_run(env, command):
    return f'conda run -n {env} {command}'
 
-def run_pipeline(stage='all', include_samples=[], exclude_samples=[]):
-    print(f'Stage: {stage}')
-    cmd_data = generate_cmd_data(stage, include_samples, exclude_samples)
+def run_pipeline(module='all', include_samples=[], exclude_samples=[]):
+    print(f'Module: {module}')
+    cmd_data = generate_cmd_data(module, include_samples, exclude_samples)
     for sample in cmd_data.keys():
         print(f'Sample: {sample.split("/")[-1]}')
         for cmd_name in cmd_data[sample].keys():
@@ -83,18 +83,18 @@ def run_pipeline(stage='all', include_samples=[], exclude_samples=[]):
             result = run_command(shell_command, cmd_name, sample)
             if result != 0:
                 return f'ERROR! {cmd_name} failed, exit code: {result}'
-                #raise Exception(f'{sample} failed on {stage}: {result}')
+                #raise Exception(f'{sample} failed on {module}: {result}')
             else:
                 print(f'{cmd_name}: OK')
     return None
 
-def generate_cmd_data(stage, include_samples, exclude_samples):
-    in_dir, source_extension = stage_vars[stage][0], stage_vars[stage][2]
+def generate_cmd_data(module, include_samples, exclude_samples):
+    in_dir, source_extension = stage_vars[module][0], stage_vars[module][2]
     samples = generate_sample_list(in_dir, include_samples, exclude_samples, source_extension)
     #print(samples)
     cmd_data = {}
     for sample in samples:
-        commands = generate_commands(sample, stage)
+        commands = generate_commands(sample, module)
         cmd_data.update({sample:commands})
     #print(cmd_data)
     return cmd_data
@@ -107,7 +107,7 @@ def generate_sample_list(in_dir, include_samples, exclude_samples, source_extens
         samples =  [s for s in samples if not any(exclusion in s for exclusion in exclude_samples)]
     return [f'{in_dir}{s}' for s in samples]
 
-def generate_commands(sample:str, stage:str):
+def generate_commands(sample:str, module:str):
     filename = sample.split('/')[-1]
     #print(filename)
     basename = f'{filename.split("_")[0]}_{filename.split("_")[1]}'
@@ -171,21 +171,21 @@ def generate_commands(sample:str, stage:str):
                                 [tmp_dir, basename]],
             }
 
-    if stage == 'all':
+    if module == 'all':
         return all_cmds
     
     cmd = {}
-    if stage == 'align':
+    if module == 'align':
         commands = ['trim_galore', 'trimmomatic', 'fastqc', 'aligning', 'samtools_sort', 'samtools_index', 'abra2', 'samtools_index_abra', 'remove_tmp_files']
-    elif stage == 'variant_calling':
+    elif module == 'variant_calling':
         commands = ['freebayes']
         #commands = ['freebayes', 'deepvariant', 'remove_tmp_files']
-    elif stage == 'annotation':
+    elif module == 'annotation':
         if 'freebayes' in sample:
             commands = ['annovar_freebayes', 'cravat_freebayes']
         elif 'deepvariant' in sample:
             commands = ['annovar_deepvariant', 'cravat_deepvariant']
-    elif stage == 'excel_postprocessing':
+    elif module == 'excel_postprocessing':
         commands = ['', '', '', '', '', '']
     for command in commands:
         cmd.update({command:all_cmds[command]})
@@ -207,9 +207,9 @@ arg_descriptions = {'prolog':'pipeline v1',
                     'folder':'folder with fqs',
                     'threads':'threads to use',
                     'ref':'ref fasta',
-                    'place':'[medgen] Workplace',
+                    'machine':'[medgen] Workmachine',
                     'sequence_mode':'[WES|WGS]',
-                    'stage':'''[all|trim|align|variant_calling|annotation|excel_postprocessing] Which stage to run (default = "all"). Must be separated by comma.
+                    'module':'''[all|trim|align|variant_calling|annotation|excel_postprocessing] Which module to run (default = "all"). Must be separated by comma.
                                 all - full pipeline walkthrough, including fastq preparing, bam & vcf generating, variant annotation and excel postprocessing;
                                 align - BAM generation with preprocessing fastqs by technical trimming and adapter removing. QC validation included;
                                 variant_calling - VCF generation from BAM files
@@ -222,9 +222,9 @@ parser = createParser()
 namespace = parser.parse_args(sys.argv[1:])
 
 threads = namespace.threads
-place = namespace.place
+machine = namespace.machine
 seq_mode = namespace.mode
-stages = namespace.stage.split(',')
+stages = namespace.module.split(',')
 include = list_from_str(namespace.include_samples)
 exclude = list_from_str(namespace.exclude_samples)
 ref_fasta = namespace.ref
@@ -242,16 +242,16 @@ stage_vars = {'align':[dir, bam_dir, '_R1.fastq.gz'],
 cravat_annotators = 'clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad spliceai cardioboost clinpred'
 annovar_dir = '/mnt/d/WES/database/annovar/'
 
-envs, binaries = get_env_list(place)
+envs, binaries = get_env_list(machine)
 
 encoding_os = os.device_encoding(1)
 log = f'{res_dir}log.txt'
 errlog = f'{res_dir}err_log.txt'
 
-for stage in stages:
-    if stage == 'align':
+for module in stages:
+    if module == 'align':
         os.system('export LC_ALL=en_US.UTF-8')
-    run_pipeline(stage=stage, include_samples=include, exclude_samples=exclude)
+    run_pipeline(module=module, include_samples=include, exclude_samples=exclude)
 
 
 
@@ -269,6 +269,6 @@ for r1 in r1s:
 '''multiqc_cmd = f'rename "s/_[1,2]P//" {qc_dir}* && {binaries["multiqc"]} {qc_dir} --outdir {qc_dir}multiqc/ --interactive'
 run_command(multiqc_cmd, 'MultiQC', 'All samples')'''
 
-'''time python3 /mnt/d/WES/pipeline_v2.py --place medgen --threads 14 --mode WES --folder $WES/input/2024
-0611_094557/Fastq/merged/ --ref $WES\/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.111.fa --stage annotation --include_sa
+'''time python3 /mnt/d/WES/pipeline_v2.py --machine medgen --threads 14 --mode WES --folder $WES/input/2024
+0611_094557/Fastq/merged/ --ref $WES\/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.111.fa --module annotation --include_sa
 mples 3147,4468,5938,5943,5985,5986,6102,6162,6455,6456,6457'''
