@@ -22,7 +22,7 @@ def list_from_str(string):
         return string.split(',')
 
 def get_env_list(place:str):
-    if place == 'igor':
+    if place == 'medgen':
         envs = {'samtools':'genetico',
                 'freebayes':'genetico',
                 'multiqc':'genetico',
@@ -207,7 +207,7 @@ arg_descriptions = {'prolog':'pipeline v1',
                     'folder':'folder with fqs',
                     'threads':'threads to use',
                     'ref':'ref fasta',
-                    'place':'[igor] Workplace',
+                    'place':'[medgen] Workplace',
                     'sequence_mode':'[WES|WGS]',
                     'stage':'''[all|trim|align|variant_calling|annotation|excel_postprocessing] Which stage to run (default = "all"). Must be separated by comma.
                                 all - full pipeline walkthrough, including fastq preparing, bam & vcf generating, variant annotation and excel postprocessing;
@@ -269,6 +269,6 @@ for r1 in r1s:
 '''multiqc_cmd = f'rename "s/_[1,2]P//" {qc_dir}* && {binaries["multiqc"]} {qc_dir} --outdir {qc_dir}multiqc/ --interactive'
 run_command(multiqc_cmd, 'MultiQC', 'All samples')'''
 
-'''time python3 /mnt/d/WES/pipeline_v2.py --place igor --threads 14 --mode WES --folder $WES/input/2024
+'''time python3 /mnt/d/WES/pipeline_v2.py --place medgen --threads 14 --mode WES --folder $WES/input/2024
 0611_094557/Fastq/merged/ --ref $WES\/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.111.fa --stage annotation --include_sa
 mples 3147,4468,5938,5943,5985,5986,6102,6162,6455,6456,6457'''
