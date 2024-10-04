@@ -42,131 +42,142 @@ def save_yaml(filename, path, data):
     with open(file_path, 'w') as yaml_file:
         yaml.dump(data, yaml_file, default_flow_style=False)
 
-def load_templates(path: str = 'config/'):
-    configs = os.listdir(path)
-    for config in configs:
-        if config.endswith('.yaml'):
-            var_name = config.split('.')[0]  # Получаем имя переменной из имени файла
-            with open(os.path.join(path, config), 'r') as f:
-                globals()[var_name] = yaml.safe_load(f)  # Создаём глобальную переменную
+def load_templates(path: str = 'local_configs/'):
+    """
+    Загружает конфигурационные файлы (machines, modules, samples) из указанной директории.
+    Выдаёт ошибку в случае отсутствия файла или проблем с его загрузкой.
+
+    :param path: Путь к директории, где хранятся конфигурационные YAML-файлы.
+    """
+    required_files = ['machines_template', 'modules_template', 'cmds_template']
+    loaded_configs = {}
+
+    # Проходим по списку обязательных файлов
+    for req_file in required_files:
+        file_path = os.path.join(path, f'{req_file}.yaml')
+        
+        # Проверяем наличие файла
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError(f"Файл {req_file}.yaml не найден в директории {path}")
+        
+        # Пытаемся загрузить файл
+        try:
+            with open(file_path, 'r') as f:
+                loaded_configs[req_file] = yaml.safe_load(f)  # Загружаем содержимое файла
+        except yaml.YAMLError as e:
+            raise ValueError(f"Ошибка загрузки файла {req_file}.yaml: {e}")
+    
+    # Сохраняем загруженные конфигурации как глобальные переменные
+    for var_name, config_data in loaded_configs.items():
+        globals()[var_name] = config_data
+
+        
+
+def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
+    """
+    Создаёт словарь с путями для всех директорий, указанных в словаре 'folders',
+    где для каждой директории указан путь относительно 'input_dir' или 'output_dir'.
+
+    :param folders: Словарь с поддиректориями для 'input_dir' и 'output_dir'
+    :param input_dir: Базовая директория для 'input_dir'
+    :param output_dir: Базовая директория для 'output_dir'
+    :return: Словарь с абсолютными путями к каждой директории
+    """
+    # Формируем словарь директорий с полными путями
+    folders_with_paths = {
+        # Проходим по всем директориям в 'input_dir' и добавляем базовый путь 'input_dir'
+        **{key: os.path.join(input_dir, f'{value}/') for key, value in folders.get('input_dir', {}).items()},
+        # Проходим по всем директориям в 'output_dir' и добавляем базовый путь 'output_dir'
+        **{key: os.path.join(output_dir, f'{value}/') for key, value in folders.get('output_dir', {}).items()}
+    }
+    return folders_with_paths
 
 
+def generate_cmd_data(args:dict, folders:dict,
+                        executables:dict,
+                        filenames:dict, commands:dict,
+                        samples:list):
 
-
-def generate_cmd_data(args:dict,folders:dict, extension:str,
-                      envs:dict, binaries:dict,
-                      module:str, log_dir:str):
-    in_samples, ex_samples = args['include_samples'], args['exclude_samples']
-    samples = generate_sample_list(in_samples, ex_samples, folders['input_dir'], extension)
     cmd_data = {}
     for sample in samples:
-        commands = generate_commands(sample, module, args, envs, binaries, folders)
-        cmd_data.update({sample:commands})
-    save_yaml('cmd_data', log_dir, cmd_data)
+        sample_filenames = generate_sample_filenames(sample, folders, filenames)
+        commands = generate_commands(args, folders, executables, sample_filenames, commands)
+        cmd_data[sample] = commands
     return cmd_data
 
-def generate_sample_list(in_samples:list, ex_samples:list,
-                         input_dir:str, extension:str):
-    
+
+def generate_sample_list(in_samples: list, ex_samples: list,
+                         input_dir: str, extension: str):
+    """
+    Генерирует список файлов на основе включающих и исключающих образцов.
+    Выдаёт ошибку, если итоговый список пустой.
+
+    :param in_samples: Список образцов, которые нужно включить.
+    :param ex_samples: Список образцов, которые нужно исключить.
+    :param input_dir: Директория, где искать файлы.
+    :param extension: Расширение файлов для поиска.
+    :return: Список путей к файлам.
+    """
+    # Ищем все файлы в директории с указанным расширением
     samples = [s for s in os.listdir(input_dir) if s.endswith(extension)]
+    # Если список включающих образцов непустой, фильтруем по нему
     if len(in_samples) != 0:
-        samples =  [s for s in samples if any(inclusion in s for inclusion in in_samples)]
+        samples = [s for s in samples if any(inclusion in s for inclusion in in_samples)]
+    # Если список исключающих образцов непустой, фильтруем по нему
     if len(ex_samples) != 0:
-        samples =  [s for s in samples if not any(exclusion in s for exclusion in ex_samples)]
-    return [f'{input_dir}{s}' for s in samples]
+        samples = [s for s in samples if not any(exclusion in s for exclusion in ex_samples)]
+    # Если итоговый список пустой, выдаём ошибку
+    if not samples:
+        raise ValueError("Итоговый список образцов пуст. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
+    # Возвращаем полный путь к каждому файлу
+    return [os.path.join(input_dir, s) for s in samples]
 
-def generate_commands(sample:str, module:str,
-                      envs:dict, binaries:dict,
-                      folders:dict, args:dict):
+
+def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> dict:
+    """
+    Генерирует словарь с путями к файлам для сэмпла на основе инструкций в filenames.
+
+    :param sample: Имя сэмпла (строка).
+    :param folders: Словарь с путями к директориям.
+    :param filenames: Словарь с инструкциями для генерации файловых путей.
+    :return: Словарь с результатами выполнения инструкций для файловых путей.
+    """
+    # Словарь для хранения сгенерированных путей
+    generated_filenames = {}
+
+    # Проходим по каждому ключу в filenames и вычисляем значение
+    for key, instruction in filenames.items():
+        # Используем eval() для вычисления выражений в строках
+        try:
+            # Выполняем инструкцию, подставляя доступные переменные
+            generated_filenames[key] = eval(instruction, {'sample': sample, 'folders': folders, 'filenames': generated_filenames,})
+        except Exception as e:
+            print(f"Ошибка при обработке {key}: {e}")
     
-    # Загружаем шаблоны файловых имён
-    filenames = load_yaml('config/filenames.yaml', module)
-    # Загружаем шаблоны команд
-    cmd_templates = load_yaml('config/commands.yaml', module)
-    #Генерируем команды для вызова исполняемых файлов
+    return generated_filenames
 
 
+def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
+                      commands:dict):
+    """
+    Генерирует словарь с командами для сэмпла на основе инструкций в cmds_template.
 
-    
-    filename = sample.split('/')[-1]
-    #print(filename)
-    basename = f'{filename.split("_")[0]}_{filename.split("_")[1]}'
-    raw_fastqs = [sample, sample.replace('_R1', '_R2')]
-    trim_galore_fastqs = [s.replace(dir, tmp_dir).replace('.fastq.gz', f'_val_{(raw_fastqs.index(s)+1)}.fq.gz') for s in raw_fastqs]
-    trimmomatic_fastqs = ' '.join([f'{tmp_dir}{basename}_{i}P.fq' for i in [1,2]])
-    abra_bam = f'{bam_dir}{basename}_abra2.bam'
-    in_bam = f'{tmp_dir}primary.bam'
-    sorted_bam = f'{tmp_dir}sorted.bam'
-    vcf_freebayes = f'{vcf_dir}{basename}_freebayes.vcf'
-    vcf_deepvariant = f'{vcf_dir}{basename}_deepvariant.vcf.gz'
-    gvcf_deepvariant = vcf_deepvariant.replace('vcf','gvcf')
-    annovar_vcf_mask = f'{annotation_dir}{basename}_annovar'
+    :param executables: Словарь со строками для вызова программ.
+    :param folders: Словарь с путями к директориям.
+    :param filenames: Словарь с именами для файлов.
+    :param args: Словарь с аргументами для команд.
+    :param commands: Словарь с инструкциями для создания команд.
+    :return: Словарь с результатами выполнения инструкций для команд.
+    """
+    # Словарь для хранения сгенерированных путей
+    generated_cmds = {}
 
-    all_cmds = {'trim_galore':['{} --length 35 --output_dir {} --cores {} --paired {}',
-                            [binaries['trim_galore'], tmp_dir, threads, ' '.join(raw_fastqs)]],
-            
-            'trimmomatic':['java -jar {} PE -threads {} {} -baseout {}{}.fq SLIDINGWINDOW:4:20 HEADCROP:15 MINLEN:35',
-                                [binaries['trimmomatic'], threads, ' '.join(trim_galore_fastqs), tmp_dir, basename]],
-            
-            'fastqc':['{} --quiet --threads 2 -o {} {}{}*P.fq',
-                        [binaries['fastqc'], qc_dir, tmp_dir, basename]],
-            
-            'aligning':['bwa mem -t {} -M {} {} | {} -M -e -r -q --addMateTags | {} view -@ {} -Sb - > {}primary.bam',
-                    [threads, ref_fasta, trimmomatic_fastqs, binaries['samblaster'], binaries['samtools'], threads, tmp_dir]],
-            
-            'samtools_sort':['{} sort -@ {} {} > {}',
-                                [binaries['samtools'], threads, in_bam, sorted_bam]],
-            
-            'samtools_index':['{} index {}',
-                                [binaries['samtools'], sorted_bam]],
-            #export LC_ALL=en_US.UTF-8
-            'abra2':['java {} --log error --in {} --out {} --ref {} --threads {} --tmpdir {}',
-                        [binaries['abra2'], sorted_bam, abra_bam, ref_fasta, threads, tmp_dir]],
-
-            'samtools_index_abra':['{} index {}',
-                                [binaries['samtools'], abra_bam]],
-
-#            'freebayes':['{} -f {} --standard-filters --report-genotype-likelihood-max --min-coverage 18 --min-alternate-qsum 50 --min-alternate-count 5 --min-alternate-fraction 0.2 {} > {}',
-#                            [binaries['freebayes'], ref_fasta, abra_bam, vcf_freebayes]],
-
-            'freebayes':['{} -f {} --standard-filters --report-genotype-likelihood-max --min-coverage 10 --min-alternate-qsum 50 --min-alternate-count 5 --min-alternate-fraction 0.2 {} > {}',
-                            [binaries['freebayes'], ref_fasta, abra_bam, vcf_freebayes]],
-
-            'deepvariant':['sudo docker run -v {}:/input -v {}:/output -v {}:/ref/ -v {}:/tmp/ google/deepvariant /opt/deepvariant/bin/run_deepvariant --model_type={} --ref=/ref/{} --reads=/input/{} --output_vcf=/output/{} --output_gvcf=/output/{} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={}',
-                           [bam_dir, vcf_dir, ref_dir, tmp_dir, seq_mode, ref_basename, abra_bam.split('/')[-1], vcf_deepvariant, gvcf_deepvariant, threads]],
-
-            'annovar_freebayes':['{}table_annovar.pl -thread {} -vcfinput {} {}humandb/ -buildver hg38 -out {}_freebayes -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish',
-                       [annovar_dir, threads, vcf_freebayes, annovar_dir, annovar_vcf_mask]],
-
-            'cravat_freebayes':['{} run {}_freebayes.hg38_multianno.vcf -l hg38 -t excel -a {} -d {} --mp {} -n {}_cravat_freebayes',
-                      [binaries['cravat'], annovar_vcf_mask, cravat_annotators, annotation_dir, threads, basename]],
-
-            'annovar_deepvariant':['{}table_annovar.pl -thread {} -vcfinput {} {}humandb/ -buildver hg38 -out {}_deepvariant -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish',
-                       [annovar_dir, threads, vcf_deepvariant, annovar_dir, annovar_vcf_mask]],
-            
-            'cravat_deepvariant':['{} run {}_deepvariant.hg38_multianno.vcf -l hg38 -t excel -a {} -d {} --mp {} -n {}_cravat_deepvariant',
-                      [binaries['cravat'], annovar_vcf_mask, cravat_annotators, annotation_dir, threads, basename]],
-
-            'remove_tmp_files':['rm {}{}*',
-                                [tmp_dir, basename]],
-            }
-
-    if module == 'all':
-        return all_cmds
-    
-    cmd = {}
-    if module == 'align':
-        commands = ['trim_galore', 'trimmomatic', 'fastqc', 'aligning', 'samtools_sort', 'samtools_index', 'abra2', 'samtools_index_abra', 'remove_tmp_files']
-    elif module == 'variant_calling':
-        commands = ['freebayes']
-        #commands = ['freebayes', 'deepvariant', 'remove_tmp_files']
-    elif module == 'annotation':
-        if 'freebayes' in sample:
-            commands = ['annovar_freebayes', 'cravat_freebayes']
-        elif 'deepvariant' in sample:
-            commands = ['annovar_deepvariant', 'cravat_deepvariant']
-    elif module == 'excel_postprocessing':
-        commands = ['', '', '', '', '', '']
-    for command in commands:
-        cmd.update({command:all_cmds[command]})
-    return cmd
+    # Проходим по каждому ключу в filenames и вычисляем значение
+    for key, instruction in commands.items():
+        # Используем eval() для вычисления выражений в строках
+        try:
+            # Выполняем инструкцию, подставляя доступные переменные
+            generated_cmds[key] = eval(instruction, {'programms': executables, 'folders': folders, 'filenames': filenames,'args': args})
+        except Exception as e:
+            print(f"Ошибка при обработке {key}: {e}")
+    return generated_cmds

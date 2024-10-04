@@ -20,7 +20,7 @@ def parse_cli_args():
     parser.add_argument('-r', '--ref', default='', help=arg_descriptions['ref'])
     parser.add_argument('-mc', '--machine', required=True, choices=['medgen', 'local'], help=arg_descriptions['machine'])
     parser.add_argument('-sm', '--seq_mode', default='', choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])
-    parser.add_argument('-m', '--module', default='', help=arg_descriptions['module'])
+    parser.add_argument('-m', '--modules', default='', help=arg_descriptions['modules'])
     parser.add_argument('-es', '--exclude_samples', default='', help=arg_descriptions['exclude_samples'])
     parser.add_argument('-is', '--include_samples', default='', help=arg_descriptions['include_samples'])
     parser.add_argument('-f', '--filter_common_variants', default='', help=arg_descriptions['filter_common_variants'])
@@ -35,8 +35,8 @@ def parse_cli_args():
         value = getattr(args, arg)  # Динамически получаем значение аргумента
         setattr(args, arg, value.split(',') if value else [])
 
-    if args.module != '':
-        args.module = args.module.split(',')
+    if args.modules != '':
+        args.modules = args.modules.split(',')
 
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
     for arg, default_value in default_values[args.machine].items():
