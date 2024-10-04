@@ -1,6 +1,7 @@
-from utils import *
+from utils import generate_sample_list, generate_cmd_data, save_yaml, get_paths
 from pipeline_manager import PipelineManager
 from command_executor import CommandExecutor
+import os
 
 class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
@@ -23,13 +24,15 @@ class ModuleRunner:
         # Загружаем данные о модуле в пространство класса
         self.load_module(x.modules_template[module], x.input_dir, x.output_dir)
 
+        
+
         # Получаем список образцов
         self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extension)
 
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(pipeline_args=x, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
-                                    commands=self.commands, samples=self.samples)
+                                    cmd_list=self.commands, commands=x.cmds_template, samples=self.samples)
         # Логгируем команды для образцов
         save_yaml(f'cmd_data_{module}', x.log_dir, self.cmd_data)
 
@@ -37,11 +40,11 @@ class ModuleRunner:
         c = self.cmd_data
 
         # Инициализируем CommandExecutor
-        exe = CommandExecutor(c, x.logs)
+        exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
         # Выполняем команды для каждого образца
-        for sample in c.keys():
-            exe.run_command(sample)
-                
+        print(f'Module: {module}')
+        exe.execute(c.keys())
+        
 
     def load_module(self, data:dict, input_dir:str, output_dir:str):
         """

@@ -1,4 +1,4 @@
-from utils import *
+from utils import load_templates, save_yaml
 from module_runner import ModuleRunner
 import os
 from datetime import date
@@ -9,7 +9,7 @@ class PipelineManager:
     modules_template: dict
     cmds_template: dict
 
-    def __init__(self, args):
+    def __init__(self, args:dict):
         """
         Конструктор, принимающий аргументы командной строки и инициализирующий параметры пайплайна.
         """
@@ -23,7 +23,7 @@ class PipelineManager:
         self.include_samples:list
         self.exclude_samples:list
         self.executables: dict
-
+        
         # Добавляем все элементы args как атрибуты класса
         for key, value in args.items():
             setattr(self, key, value)
@@ -49,18 +49,20 @@ class PipelineManager:
 
     def set_logs(self):
         setattr(self, 'log_dir', os.path.join(self.output_dir, 'Logs/', f'{self.today}_{'-'.join(self.modules)}'))
-        setattr(self, 'log', f'{self.log_dir}/stdout_log.txt')
-        setattr(self, 'errlog', f'{self.log_dir}/stderr_log.txt')
-        setattr(self, 'log_dict', os.path.join(self.log_dir, 'log.yaml'))
-        setattr(self, 'errlog_dict', os.path.join(self.log_dir, 'err_log.yaml'))
+        setattr(self, 'stdout_log', f'{self.log_dir}/stdout_log.txt')
+        setattr(self, 'stderr_log', f'{self.log_dir}/stderr_log.txt')
+        setattr(self, 'log_data', os.path.join(self.log_dir, 'log.yaml'))
+        
         # Извлекаем в отдельный словарь пути к файлам логов
-        self.logs = {k: v for k, v in self.init_configs.items() if k in ['log_dir', 'log', 'errlog', 'log_dict', 'errlog_dict']}
+        self.log_space = {k: v for k, v in self.init_configs.items() if k in ['log_dir', 'stdout_log', 'stderr_log', 'log_data']}
 
     def load_machine_vars(self):
         """
         Загружает данные о средах и исполняемых файлах указанной машины, необходимых для пайплайна, формирует команды для вызова программ \
             и добавляет их в пространство объекта класса.
         """
+        machine_data:dict
+        binaries:dict
         # Загружаем данные из шаблона
         machine_data = self.machines_template[self.machine]
         envs = machine_data.get('envs', {})

@@ -1,5 +1,8 @@
 import yaml
 import os
+import time
+from datetime import datetime
+import subprocess
 
 def load_yaml(file_path:str, subsection:str = ''):
     """
@@ -14,19 +17,24 @@ def load_yaml(file_path:str, subsection:str = ''):
              в YAML, возвращается соответствующая секция, иначе — всё содержимое файла.
     """
     # Открываем YAML-файл для чтения
-    with open(file_path, 'r') as file:
-        data = yaml.safe_load(file)  # Загружаем содержимое файла в словарь с помощью safe_load
-    
-    # Если subsection не указан, возвращаем весь YAML-файл
-    if subsection == '':
-        return data
-    else:
-        # Если subsection указан и существует в файле, возвращаем только эту секцию
-        if subsection  in data.keys():
-            return data[subsection]
-        else:
-            raise ValueError(f"Раздел '{machine}' не найден в {file_path}")
+    try:
+        with open(file_path, 'r') as file:
+            data = yaml.safe_load(file)  # Загружаем содержимое файла в словарь с помощью safe_load
         
+        # Если subsection не указан, возвращаем весь YAML-файл
+        if subsection == '':
+            return data
+        else:
+            # Если subsection указан и существует в файле, возвращаем только эту секцию
+            if subsection  in data.keys():
+                return data[subsection]
+            else:
+                raise ValueError(f"Раздел '{subsection}' не найден в {file_path}")
+    except FileNotFoundError:
+        # Если файл не найден, возвращаем пустой словарь
+        return {}
+
+
 def save_yaml(filename, path, data):
     """
     Сохраняет словарь в файл в формате YAML.
@@ -41,6 +49,32 @@ def save_yaml(filename, path, data):
     # Записываем данные в YAML-файл
     with open(file_path, 'w') as yaml_file:
         yaml.dump(data, yaml_file, default_flow_style=False)
+
+
+def update_yaml(file_path: str, new_data: dict):
+    """
+    Обновляет YAML-файл, считывая и перезаписывая его новыми данными
+    :param file_path: путь к файлу в виде строки
+    :param new_data: данные в виде словаря
+    """
+    # Шаг 1: Загрузить текущие данные из YAML
+    try:
+        with open(file_path, 'r') as file:
+            current_data = yaml.safe_load(file) or {}
+    except FileNotFoundError:
+        current_data = {}  # Если файл не найден, создаём пустой словарь
+
+    # Шаг 2: Обновить значения существующих ключей
+    for key, value in new_data.items():
+        if key in current_data:
+            current_data[key].update(value)  # Обновляем только значения
+        else:
+            current_data[key] = value  # Добавляем новый ключ, если его нет
+
+    # Шаг 3: Записать обновлённые данные обратно в YAML
+    with open(file_path, 'w') as file:
+        yaml.dump(current_data, file, default_flow_style=False)
+
 
 def load_templates(path: str = 'local_configs/'):
     """
@@ -72,7 +106,6 @@ def load_templates(path: str = 'local_configs/'):
         globals()[var_name] = config_data
 
         
-
 def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
     """
     Создаёт словарь с путями для всех директорий, указанных в словаре 'folders',
@@ -96,13 +129,14 @@ def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
 def generate_cmd_data(args:dict, folders:dict,
                         executables:dict,
                         filenames:dict, commands:dict,
-                        samples:list):
+                        cmd_list:list, samples:list):
 
     cmd_data = {}
     for sample in samples:
-        sample_filenames = generate_sample_filenames(sample, folders, filenames)
-        commands = generate_commands(args, folders, executables, sample_filenames, commands)
-        cmd_data[sample] = commands
+        sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
+        cmds = generate_commands(args=args, folders=folders, executables=executables, filenames=sample_filenames,
+                                  commands=commands, cmd_list=cmd_list)
+        cmd_data[sample] = cmds
     return cmd_data
 
 
@@ -158,7 +192,7 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
 
 
 def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
-                      commands:dict):
+                      commands:dict, cmd_list:list):
     """
     Генерирует словарь с командами для сэмпла на основе инструкций в cmds_template.
 
@@ -174,10 +208,45 @@ def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
 
     # Проходим по каждому ключу в filenames и вычисляем значение
     for key, instruction in commands.items():
-        # Используем eval() для вычисления выражений в строках
-        try:
-            # Выполняем инструкцию, подставляя доступные переменные
-            generated_cmds[key] = eval(instruction, {'programms': executables, 'folders': folders, 'filenames': filenames,'args': args})
-        except Exception as e:
-            print(f"Ошибка при обработке {key}: {e}")
+        if key in cmd_list:
+            # Используем eval() для вычисления выражений в строках
+            try:
+                # Выполняем инструкцию, подставляя доступные переменные
+                generated_cmds[key] = eval(instruction, {'programms': executables, 'folders': folders, 'filenames': filenames,'args': args})
+            except Exception as e:
+                print(f"Ошибка при обработке {key}: {e}")
     return generated_cmds
+
+
+def run_command(cmd: str, cmd_title: str) -> dict:
+    # Время начала (общее)
+    start_time = time.time()
+    # Время процессора в начале
+    cpu_start_time = time.process_time()
+    # Текущее время
+    start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+    
+    # Выполняем процесс
+    result = subprocess.run(cmd, shell=True)
+    # Время завершения (общее)
+    duration = time.time() - start_time
+    # Время процессора в конце
+    cpu_duration = time.process_time() - cpu_start_time
+    # Текущее время завершения
+    end_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+
+    # Логгирование
+    log_data = {
+            'log':
+                {'status': 'OK',
+                'start_time':start_datetime,
+                'end_time':end_datetime,
+                'duration_sec': round(duration, 0),
+                'cpu_duration_sec': round(cpu_duration, 0),
+                'exit_code': result.returncode},
+            'stderr':result.stderr,
+            'stdout':result.stdout
+                }
+    if log_data['log'][''] !=0:
+        log_data['log']['status'] = 'FAIL'
+    return log_data
