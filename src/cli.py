@@ -40,7 +40,7 @@ def parse_cli_args():
         args.modules = args.modules.split(',')
 
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
-    for arg, default_value in default_values[args.machine].items():
+    for arg, default_value in default_values.items():
         if getattr(args, arg) == '':
             setattr(args, arg, default_value)
 
