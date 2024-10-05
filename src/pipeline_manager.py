@@ -1,4 +1,4 @@
-from src.utils import load_templates, save_yaml
+from src.utils import load_templates, create_paths, save_yaml
 import os
 from datetime import date
 
@@ -62,6 +62,8 @@ class PipelineManager:
         """
         # Устанавливаем директорию для логов
         self.log_dir = os.path.join(self.output_dir, 'Logs/', f'{self.today}_{"-".join(self.modules)}')
+        # Создаём директорию логов
+        create_paths([self.log_dir])
         
         # Устанавливаем пути к файлам логов
         self.stdout_log = f'{self.log_dir}/stdout_log.txt'
