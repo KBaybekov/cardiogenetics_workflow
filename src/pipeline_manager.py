@@ -87,7 +87,6 @@ class PipelineManager:
         machine_data:dict
         binaries:dict
         # Загружаем данные из шаблона
-        print(globals()['machines_template'])
         machine_data = self.machines_template[self.machine]
         envs = machine_data.get('envs', {})
         binaries = machine_data.get('binaries', {})
