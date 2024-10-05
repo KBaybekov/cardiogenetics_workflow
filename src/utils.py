@@ -104,7 +104,7 @@ def load_templates(path: str):
     # Сохраняем загруженные конфигурации как глобальные переменные
     for var_name, config_data in loaded_configs.items():
         globals()[var_name] = config_data
-        #print(var_name)
+    print(globals()['machines_template'])
 
         
 def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
