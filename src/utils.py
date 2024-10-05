@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 import subprocess
 
-def load_yaml(file_path:str, critical:bool, subsection:str = ''):
+def load_yaml(file_path:str, critical:bool = False, subsection:str = ''):
     """
     Универсальная функция для загрузки данных из YAML-файла.
 
