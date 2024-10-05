@@ -80,10 +80,11 @@ class PipelineManager:
         Загружает данные о средах и исполняемых файлах указанной машины, необходимых для пайплайна, формирует команды для вызова программ \
             и добавляет их в пространство объекта класса.
         """
+        machines_template:dict
         machine_data:dict
         binaries:dict
         # Загружаем данные из шаблона
-        machine_data = self.machines_template[self.machine]
+        machine_data = machines_template[self.machine]
         envs = machine_data.get('envs', {})
         binaries = machine_data.get('binaries', {})
         env_command_template = machine_data.get('env_command', '')
