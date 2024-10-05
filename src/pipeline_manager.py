@@ -6,10 +6,6 @@ class PipelineManager:
     """
     Основной класс для управления пайплайном. Инициализирует конфигурации и логи, загружает данные о машине и модулях.
     """
-    machines_template: dict
-    modules_template: dict
-    cmds_template: dict
-
     def __init__(self, args:dict):
         """
         Конструктор, принимающий аргументы командной строки и инициализирующий параметры пайплайна.
@@ -21,6 +17,9 @@ class PipelineManager:
         self.input_dir:str
         self.output_dir:str
         self.machine:str
+        self.machines_template:dict
+        self.modules_template:dict
+        self.cmds_template:dict
         self.include_samples:list
         self.exclude_samples:list
         self.executables: dict
@@ -41,7 +40,12 @@ class PipelineManager:
         if self.config_path == '':
             self.config_path = os.path.dirname(os.path.realpath(__file__)).replace('src', 'local_configs')
         # Загружаем данные конфигов
-        load_templates(self.config_path)
+        #Загружаем указанные конфиги
+        templates = ['machines_template', 'modules_template', 'cmds_template']
+        loaded_templates = load_templates(self.config_path, templates)
+        # Добавляем загруженные конфиги в атрибуты класса
+        for template,data in loaded_templates:
+            setattr(self, template, data)
         
         # Загрузка конфигурации машины
         self.load_machine_vars()
@@ -84,7 +88,7 @@ class PipelineManager:
         binaries:dict
         # Загружаем данные из шаблона
         print(globals()['machines_template'])
-        machine_data = globals()['machines_template'][self.machine]
+        machine_data = self.machines_template[self.machine]
         envs = machine_data.get('envs', {})
         binaries = machine_data.get('binaries', {})
         env_command_template = machine_data.get('env_command', '')

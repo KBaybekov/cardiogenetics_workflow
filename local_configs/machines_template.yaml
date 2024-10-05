@@ -15,17 +15,3 @@ medgen:
     multiqc: "multiqc"
     cravat: "oc"
   env_command: "conda run -n env binary"
-
-local:
-  envs:
-    trim_galore: "trim_galore"
-    fastqc: "fastqc"
-  binaries:
-    trim_galore: "conda run -n trim_galore trim_galore"
-    trimmomatic: "/home/medgen/programms/trimmomatic/trimmomatic-0.39.jar"
-    fastqc: "conda run -n fastqc fastqc"
-    samblaster: "~/github/samblaster/samblaster"
-    samtools: "samtools"
-    abra2: "-Xmx12G -jar ~/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
-    freebayes: "freebayes"
-    multiqc: "multiqc"

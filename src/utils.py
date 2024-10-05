@@ -76,14 +76,14 @@ def update_yaml(file_path: str, new_data: dict):
         yaml.dump(current_data, file, default_flow_style=False)
 
 
-def load_templates(path: str):
+def load_templates(path: str, required_files:list):
     """
     Загружает конфигурационные файлы (machines, modules, samples) из указанной директории.
     Выдаёт ошибку в случае отсутствия файла или проблем с его загрузкой.
 
     :param path: Путь к директории, где хранятся конфигурационные YAML-файлы.
+    :param required_files: Конфигурационные YAML-файлы.
     """
-    required_files = ['machines_template', 'modules_template', 'cmds_template']
     loaded_configs = {}
 
     # Проходим по списку обязательных файлов
