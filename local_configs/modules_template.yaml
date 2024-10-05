@@ -2,7 +2,7 @@ align:
   folders:
     input:
     output:
-      log_dir: "Log"`
+      log_dir: "Log"
       tmp_dir: "tmp"
       qc_dir:  "QC"
       bam_dir: "bam"
@@ -35,7 +35,7 @@ variant_calling:
   folders:
     input:
     output:
-      log_dir: "Log"`
+      log_dir: "Log"
       tmp_dir: "tmp"
       vcf_dir: "vcf"
   
@@ -65,7 +65,7 @@ annotation:
   folders:
     input:
     output:
-      log_dir: "Log"`
+      log_dir: "Log"
       tmp_dir: "tmp"
       ann_dir: "annotation"
   
@@ -76,15 +76,13 @@ annotation:
     basename: "{filename.split('_')[0]}_{filename.split('_')[1]}"
     annovar_vcf: "{folders['annotation_dir']}{filenames['basename'}_annovar"
 
-ы
-
 
 excel_postprocessing:
   
   folders:
     input:
     output:
-      log_dir: "Log"`
+      log_dir: "Log"
       tmp_dir: "tmp"
       excel_dir: "excel"
   
