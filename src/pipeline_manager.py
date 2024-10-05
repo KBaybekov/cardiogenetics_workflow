@@ -44,7 +44,7 @@ class PipelineManager:
         templates = ['machines_template', 'modules_template', 'cmds_template']
         loaded_templates = load_templates(self.config_path, templates)
         # Добавляем загруженные конфиги в атрибуты класса
-        for template,data in loaded_templates:
+        for template,data in loaded_templates.items():
             setattr(self, template, data)
         
         # Загрузка конфигурации машины
