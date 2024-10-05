@@ -1,4 +1,5 @@
 import argparse
+import os
 from src.utils import load_yaml  # Импортируем функцию для загрузки YAML
 
 def parse_cli_args():
@@ -6,9 +7,8 @@ def parse_cli_args():
     Функция для обработки аргументов командной строки
     """
     arg_descriptions = load_yaml('config/arg_descriptions.yaml')
-    default_values = load_yaml('config/default_values.yaml')
-    print(default_values)
-
+    default_values = load_yaml(f'{os.path.dirname(os.path.realpath(__file__)).replace('src', 'config')}/default_values.yaml')
+    
     parser = argparse.ArgumentParser(
         description=arg_descriptions['prolog'], 
         epilog=arg_descriptions['epilog']
@@ -44,10 +44,8 @@ def parse_cli_args():
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
     for arg, default_value in default_values.items():
         if getattr(args, arg) == '':
-            print(arg)
             setattr(args, arg, default_value)
-    print(args.modules)
-
+    
     # Преобразуем Namespace в словарь
     args = vars(args)  # Преобразуем объект Namespace в словарь
 

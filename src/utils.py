@@ -4,11 +4,12 @@ import time
 from datetime import datetime
 import subprocess
 
-def load_yaml(file_path:str, subsection:str = ''):
+def load_yaml(file_path:str, critical:bool, subsection:str = ''):
     """
     Универсальная функция для загрузки данных из YAML-файла.
 
     :param file_path: Путь к YAML-файлу. Ожидается строка, указывающая на местоположение файла с данными.
+    :param critical: Возвращает ошибку, если файл не найден
     :param subsection: Опциональный параметр. Если передан, функция вернёт только данные из указанной
                        секции (например, конкретного этапа пайплайна). Если пусто, возвращаются все данные.
                        По умолчанию - пустая строка, что означает возврат всего содержимого файла.
@@ -30,8 +31,10 @@ def load_yaml(file_path:str, subsection:str = ''):
                 return data[subsection]
             else:
                 raise ValueError(f"Раздел '{subsection}' не найден в {file_path}")
-    except FileNotFoundError:
-        # Если файл не найден, возвращаем пустой словарь
+    except FileNotFoundError as e:
+        # Если файл не найден, возвращаем пустой словарь или ошибку, если данные необходимы для дальнейшей работы
+        if critical:
+            raise FileNotFoundError(f"Не найден: {file_path}")
         return {}
 
 
