@@ -43,7 +43,9 @@ def parse_cli_args():
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
     for arg, default_value in default_values.items():
         if getattr(args, arg) == '':
+            print(arg)
             setattr(args, arg, default_value)
+    print(args.modules)
 
     # Преобразуем Namespace в словарь
     args = vars(args)  # Преобразуем объект Namespace в словарь
