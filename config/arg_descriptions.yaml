@@ -3,7 +3,7 @@ epilog: "(c) Kirill Baybekov"
 input_dir: "Папка с исходными файлами"
 output_dir: "Папка для результатов"
 threads: "Количество потоков для анализа (16)"
-ref: "Путь к референсному файлу FASTA"
+ref_fasta: "Путь к референсному файлу FASTA"
 machine: "[medgen|local] Место запуска пайплайна"
 sequence_mode: "[WES|WGS] Тип секвенирования (WES)"
 modules: |
