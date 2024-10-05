@@ -7,7 +7,7 @@ ref: "Путь к референсному файлу FASTA"
 machine: "[medgen|local] Место запуска пайплайна"
 sequence_mode: "[WES|WGS] Тип секвенирования (WES)"
 modules: |
-  [all|trim|align|variant_calling|annotation|excel_postprocessing] Какой модуль запускать ("all"). 
+  [align|variant_calling|annotation|excel_postprocessing] Какой модуль запускать ("all"). 
   Возможные значения:
     - all: полный проход пайплайна
     - align: подготовка BAM-файлов
