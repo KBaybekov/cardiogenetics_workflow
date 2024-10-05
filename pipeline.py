@@ -1,11 +1,12 @@
-from src import *
+from src import cli, pipeline_manager
+
 
 
 def main():
     # Парсинг аргументов командной строки
-    args = parse_cli_args()
+    args = cli.parse_cli_args()
     # Инициализация пайплайна
-    pipeline = PipelineManager(args)
+    pipeline = pipeline_manager.PipelineManager(args)
     #Запуск пайплайна
     pipeline.run_pipeline()
 
