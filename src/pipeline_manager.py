@@ -1,5 +1,5 @@
 from src.utils import load_templates, save_yaml
-from module_runner import ModuleRunner
+from src.module_runner import ModuleRunner
 import os
 from datetime import date
 

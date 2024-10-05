@@ -1,6 +1,6 @@
 from src.utils import generate_sample_list, generate_cmd_data, save_yaml, get_paths, create_paths
-from pipeline_manager import PipelineManager
-from command_executor import CommandExecutor
+from src.pipeline_manager import PipelineManager
+from src.command_executor import CommandExecutor
 import os
 
 class ModuleRunner:
