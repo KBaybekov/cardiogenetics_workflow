@@ -4,6 +4,19 @@ from utils import run_command, load_yaml, update_yaml
 
 class CommandExecutor:
     def __init__(self, cmd_data:dict, log_space:dict, module:str):
+        """
+        Инициализация CommandExecutor.
+        
+        :param cmd_data: Данные о командах.
+        :param log_space: Лог-файлы для записи выполнения.
+        :param module: Название модуля.
+        """
+        self.logs:dict
+
+        self.logs = {
+            {'log':load_yaml(file_path=self.log)},
+            {'stdout':load_yaml(file_path=self.stdout)},
+            {'stderr':load_yaml(file_path=self.stderr)}}
         self.cmd_data = cmd_data
         self.log = log_space['log_data']
         self.stdout = log_space['stdout_log']
@@ -11,24 +24,69 @@ class CommandExecutor:
         self.module = module
         self.module_start_time = datetime.now().strftime("%d.%m.%Y_%H:%M:%S")
 
-    def execute(self, samples:list):
+        # Инициализируем раздел логов для текущего модуля
+        for log_type in ['log', 'stdout', 'stderr']:
+            if f'{self.module}_{self.module_start_time}' not in self.logs[log_type]:
+                self.logs[log_type][f'{self.module}_{self.module_start_time}'] = {}
+
+    def execute(self, samples:list, samples_result_dict:dict) -> dict:
+        """
+        Выполняет команды для списка образцов.
+        
+        :param samples: Список образцов.
+        """
         cmds:dict
-        cmds = self.cmd_data[sample]
-        self.result = load_yaml(file_path=self.log)
-        self.result.update({f'{self.module}_{self.module_start_time}':{}})
-        # Алиас
-        m = self.result[f'{self.module}_{self.module_start_time}']
+        
+        # Получаем раздел логов для текущего модуля
+        log_section = self.logs['log'][f'{self.module}_{self.module_start_time}']
+        stdout_section = self.logs['stdout'][f'{self.module}_{self.module_start_time}']
+        stderr_section = self.logs['stderr'][f'{self.module}_{self.module_start_time}']
+        
         for sample in samples:
+            samples_result_dict[sample] = {'status':True, 'programms':{}}
             print(f'Sample: {sample}')
-            sample_result = {}
+
+            # Получаем команды для текущего образца
+            cmds = self.cmd_data[sample]
+
+            sample_result = {
+                {'log':{}},
+            {'stdout':{}},
+            {'stderr':{}}
+            }
+
             for title, cmd in cmds.items():
                 print(f'\t{title}:', end='')
-                sample_result[title] = run_command(cmd=cmd, cmd_title=title)
-                r = sample_result[title]
+
+                # Выполнение команды
+                run_result = run_command(cmd=cmd, cmd_title=title)
+
+                # Сохранение результатов
+                sample_result['log'][title] = run_result['log']
+                sample_result['stdout'][title] = run_result['stdout']
+                sample_result['stderr'][title] = run_result['stderr']
+                
+                # Логгирование результатов выполнения
+                r = sample_result['log'][title]
+
+                # Проверка успешности выполнения команды
                 if r['status'] == 'FAIL':
                     print(f'FAIL, exit code: {r["exit_code"]}. ', end='')
+                    samples_result_dict[sample]['status'] = False
                 else:
                     print(f'OK. ', end='')
+                samples_result_dict[sample]['programms'].update({title:r["exit_code"]})
+
                 print(f'Duration: {r['duration']}')
-                m.update({sample:sample_result})
-                update_yaml(file_path=self.log, new_data=m)
+            
+             # Обновляем логи для текущего образца
+            log_section.update({sample:sample_result['log']})
+            stdout_section.update({sample:sample_result['stdout']})
+            stderr_section.update({sample:sample_result['stderr']})
+
+            # Сохраняем обновлённые данные в YAML
+            update_yaml(file_path=self.log, new_data=self.logs['log'])
+            update_yaml(file_path=self.stdout, new_data=self.logs['stdout'])
+            update_yaml(file_path=self.stderr, new_data=self.logs['stderr'])
+
+            return samples_result_dict

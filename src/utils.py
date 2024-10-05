@@ -130,12 +130,30 @@ def generate_cmd_data(args:dict, folders:dict,
                         executables:dict,
                         filenames:dict, commands:dict,
                         cmd_list:list, samples:list):
+    """
+    Генерирует команды для каждого образца на основе аргументов, файлов и шаблонов команд.
+    
+    :param args: Аргументы пайплайна (содержат параметры запуска).
+    :param folders: Словарь с директориями (входные и выходные директории).
+    :param executables: Словарь с исполняемыми файлами.
+    :param filenames: Словарь с шаблонами файлов для текущего образца.
+    :param commands: Шаблоны команд для выполнения.
+    :param cmd_list: Список команд, которые нужно сгенерировать.
+    :param samples: Список образцов для обработки.
+    :return: Словарь с командами для каждого образца.
+    """
 
     cmd_data = {}
+    # Для каждого образца создаём набор команд
     for sample in samples:
+        # Генерируем файлы для конкретного образца
         sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
+
+        # Генерируем команды на основе аргументов, файлов и шаблонов команд
         cmds = generate_commands(args=args, folders=folders, executables=executables, filenames=sample_filenames,
                                   commands=commands, cmd_list=cmd_list)
+        
+        # Добавляем сгенерированные команды в словарь для текущего образца
         cmd_data[sample] = cmds
     return cmd_data
 
@@ -218,7 +236,22 @@ def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
     return generated_cmds
 
 
-def run_command(cmd: str, cmd_title: str) -> dict:
+def create_paths(paths: list):
+    """
+    Принимает список путей и пытается их создать.
+    Если путь создать невозможно, выводит ошибку и завершает программу.
+    
+    :param paths: Список путей для создания.
+    """
+    for path in paths:
+        try:
+            os.makedirs(path, exist_ok=True)
+        except OSError as e:
+            print(f"Ошибка при создании пути: {path}. Ошибка: {e}")
+            raise SystemExit(f"Невозможно создать путь: {path}")
+
+
+def run_command(cmd: str) -> dict:
     # Время начала (общее)
     start_time = time.time()
     # Время процессора в начале
@@ -227,7 +260,8 @@ def run_command(cmd: str, cmd_title: str) -> dict:
     start_datetime = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     
     # Выполняем процесс
-    result = subprocess.run(cmd, shell=True)
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+
     # Время завершения (общее)
     duration = time.time() - start_time
     # Время процессора в конце
@@ -238,15 +272,14 @@ def run_command(cmd: str, cmd_title: str) -> dict:
     # Логгирование
     log_data = {
             'log':
-                {'status': 'OK',
+                {'status': 'OK' if result.returncode == 0 else 'FAIL',
                 'start_time':start_datetime,
                 'end_time':end_datetime,
                 'duration_sec': round(duration, 0),
-                'cpu_duration_sec': round(cpu_duration, 0),
+                'cpu_duration_sec': round(cpu_duration, 2),
                 'exit_code': result.returncode},
-            'stderr':result.stderr,
-            'stdout':result.stdout
+                'stderr': result.stderr.strip() if result.stderr else '',  # Убираем лишние пробелы
+                'stdout': result.stdout.strip() if result.stdout else ''   # Убираем лишние пробелы
                 }
-    if log_data['log'][''] !=0:
-        log_data['log']['status'] = 'FAIL'
+
     return log_data

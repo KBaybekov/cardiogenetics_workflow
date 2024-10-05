@@ -4,7 +4,9 @@ import os
 from datetime import date
 
 class PipelineManager:
-    #Объявляем переменные конфигов
+    """
+    Основной класс для управления пайплайном. Инициализирует конфигурации и логи, загружает данные о машине и модулях.
+    """
     machines_template: dict
     modules_template: dict
     cmds_template: dict
@@ -13,7 +15,7 @@ class PipelineManager:
         """
         Конструктор, принимающий аргументы командной строки и инициализирующий параметры пайплайна.
         """
-        #Объявляем переменные класса
+        # Объявляем основные атрибуты
         self.config_path:str
         self.log_dir:str
         self.modules:list
@@ -23,6 +25,7 @@ class PipelineManager:
         self.include_samples:list
         self.exclude_samples:list
         self.executables: dict
+        self.demo:str
         
         # Добавляем все элементы args как атрибуты класса
         for key, value in args.items():
@@ -38,7 +41,7 @@ class PipelineManager:
         # Загружаем данные конфигов
         load_templates(self.config_path)
         
-        # Загрузка конфигурации машины и конфигурации модулей из шаблонов; шаблон cmds_template будет преобразован в ModuleRunner
+        # Загрузка конфигурации машины
         self.load_machine_vars()
         
         # Преобразуем все начальные параметры в словарь
@@ -48,13 +51,27 @@ class PipelineManager:
 
 
     def set_logs(self):
-        setattr(self, 'log_dir', os.path.join(self.output_dir, 'Logs/', f'{self.today}_{'-'.join(self.modules)}'))
-        setattr(self, 'stdout_log', f'{self.log_dir}/stdout_log.txt')
-        setattr(self, 'stderr_log', f'{self.log_dir}/stderr_log.txt')
-        setattr(self, 'log_data', os.path.join(self.log_dir, 'log.yaml'))
+        """
+        Инициализирует директории для логов и сохраняет пути к файлам логов в атрибуты класса.
+        """
+        # Устанавливаем директорию для логов
+        self.log_dir = os.path.join(self.output_dir, 'Logs/', f'{self.today}_{'-'.join(self.modules)}')
         
-        # Извлекаем в отдельный словарь пути к файлам логов
-        self.log_space = {k: v for k, v in self.init_configs.items() if k in ['log_dir', 'stdout_log', 'stderr_log', 'log_data']}
+        # Устанавливаем пути к файлам логов
+        self.stdout_log = f'{self.log_dir}/stdout_log.txt'
+        self.stderr_log = f'{self.log_dir}/stderr_log.txt'
+        self.log_data = os.path.join(self.log_dir, 'log.yaml')
+        self.status_log = os.path.join(self.log_dir, 'status_log.yaml')
+        
+        # Создаём словарь с путями к файлам логов
+        self.log_space = {
+            'log_dir': self.log_dir,
+            'stdout_log': self.stdout_log,
+            'stderr_log': self.stderr_log,
+            'log_data': self.log_data,
+            'status_log': self.status_log
+        }
+
 
     def load_machine_vars(self):
         """
@@ -80,7 +97,7 @@ class PipelineManager:
                 # Если ключа нет в envs, оставляем значение из binaries
                 executables.update({key: binary})
         # Устанавливаем атрибут executables в пространство экземпляра класса
-        setattr(self, 'executables', executables)
+        self.executables = executables
 
 
     def run_pipeline(self):
@@ -90,15 +107,30 @@ class PipelineManager:
         # Инициализируем ModuleRunner с текущим экземпляром PipelineManager
         module_runner = ModuleRunner(self)
 
+        result_dict = {'status':True, 'modules':{}}
+
         # Проходим по каждому модулю, указанному в аргументах
         for module in self.modules:
             print(f'Запуск модуля: {module}')
 
             # Запускаем модуль через ModuleRunner
-            result = module_runner.run_module(module)
+            result_dict = module_runner.run_module(module, result_dict['modules'])
             
-            if result != 0:
-                print(f'Модуль {module} завершился с ошибкой.')
-                break  # Останавливаем процесс, если какой-то модуль завершился с ошибкой
+            # Если хотя бы один модуль завершился с ошибкой, обновляем статус пайплайна
+            if not result_dict['modules'][module]['status']:
+                result_dict['status'] = False
 
-        print("Пайплайн завершён успешно.")
+        if result_dict['status']:
+            print("Пайплайн завершён успешно.")
+        else:
+            print("Пайплайн завершён с ошибками:")
+            for module, module_data in result_dict['modules']:
+                if not module_data['status']:
+                    print(f'Модуль: {module}')
+                    for sample, sample_data in result_dict['modules'][module][module_data].items():
+                        if not sample_data['status']:
+                            print(f'\t{sample}')
+                            for programm, exit_code in sample_data.items():
+                                print(f'\t\t{programm}: exit code {exit_code}')
+
+        save_yaml(filename=self.status_log, data=result_dict)

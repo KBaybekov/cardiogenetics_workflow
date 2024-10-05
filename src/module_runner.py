@@ -1,4 +1,4 @@
-from utils import generate_sample_list, generate_cmd_data, save_yaml, get_paths
+from utils import generate_sample_list, generate_cmd_data, save_yaml, get_paths, create_paths
 from pipeline_manager import PipelineManager
 from command_executor import CommandExecutor
 import os
@@ -17,14 +17,12 @@ class ModuleRunner:
         self.pipeline_manager = pipeline_manager
 
 
-    def run_module(self, module:str):
+    def run_module(self, module:str, module_result_dict:dict) -> dict:
         # Алиас
         x = self.pipeline_manager
 
         # Загружаем данные о модуле в пространство класса
         self.load_module(x.modules_template[module], x.input_dir, x.output_dir)
-
-        
 
         # Получаем список образцов
         self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extension)
@@ -33,17 +31,33 @@ class ModuleRunner:
         self.cmd_data = generate_cmd_data(pipeline_args=x, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
                                     cmd_list=self.commands, commands=x.cmds_template, samples=self.samples)
-        # Логгируем команды для образцов
+        # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', x.log_dir, self.cmd_data)
 
         # Алиас
         c = self.cmd_data
 
+        module_result_dict[module] = {'status': True, 'samples':{}}
+
+        # Создаём пути
+
+        create_paths(self.folders)
+
         # Инициализируем CommandExecutor
         exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
+
+        # Если режим демонстрации активен, завершаем выполнение
+        if x.demo == 'yes':
+            return
+
         # Выполняем команды для каждого образца
         print(f'Module: {module}')
-        exe.execute(c.keys())
+        module_result_dict = exe.execute(c.keys(), module_result_dict[module])
+        
+        if not module_result_dict[module]['status']:
+            module_result_dict['status'] = False
+
+        return module_result_dict
         
 
     def load_module(self, data:dict, input_dir:str, output_dir:str):
