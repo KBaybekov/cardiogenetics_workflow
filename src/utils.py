@@ -76,9 +76,9 @@ def update_yaml(file_path: str, new_data: dict):
         yaml.dump(current_data, file, default_flow_style=False)
 
 
-def load_templates(path: str, required_files:list):
+def load_templates(path: str, required_files:list) -> dict:
     """
-    Загружает конфигурационные файлы (machines, modules, samples) из указанной директории.
+    Загружает конфигурационные файлы из указанной директории.
     Выдаёт ошибку в случае отсутствия файла или проблем с его загрузкой.
 
     :param path: Путь к директории, где хранятся конфигурационные YAML-файлы.
@@ -101,10 +101,8 @@ def load_templates(path: str, required_files:list):
         except yaml.YAMLError as e:
             raise ValueError(f"Ошибка загрузки файла {req_file}.yaml: {e}")
     
-    # Сохраняем загруженные конфигурации как глобальные переменные
-    for var_name, config_data in loaded_configs.items():
-        globals()[var_name] = config_data
-    print(globals()['machines_template'])
+    # Возвращаем загруженные конфигурации
+    return loaded_configs    
 
         
 def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
