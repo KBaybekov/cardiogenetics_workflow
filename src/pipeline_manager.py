@@ -1,5 +1,4 @@
 from src.utils import load_templates, save_yaml
-from src.module_runner import ModuleRunner
 import os
 from datetime import date
 
@@ -104,6 +103,7 @@ class PipelineManager:
         """
         Запуск всего пайплайна по модулям.
         """
+        from src.module_runner import ModuleRunner
         # Инициализируем ModuleRunner с текущим экземпляром PipelineManager
         module_runner = ModuleRunner(self)
 
