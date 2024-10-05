@@ -26,6 +26,7 @@ def parse_cli_args():
     parser.add_argument('-f', '--filter_common_variants', default='', help=arg_descriptions['filter_common_variants'])
     parser.add_argument('-frt', '--variant_frequency_threshold', default='', help=arg_descriptions['variant_frequency_threshold'])
     parser.add_argument('-dm', '--demo', default='', help=arg_descriptions['demo'])
+    parser.add_argument('-cf', '--config_path', default='', help=arg_descriptions['config_path'])
 
     # Парсим аргументы
     args = parser.parse_args()
