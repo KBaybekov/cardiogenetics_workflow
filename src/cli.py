@@ -44,4 +44,7 @@ def parse_cli_args():
         if getattr(args, arg) == '':
             setattr(args, arg, default_value)
 
+    # Преобразуем Namespace в словарь
+    args = vars(args)  # Преобразуем объект Namespace в словарь
+
     return args
