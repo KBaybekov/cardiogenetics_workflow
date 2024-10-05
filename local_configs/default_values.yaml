@@ -1,5 +1,5 @@
 medgen:
-  config_path: 'local_configs/'
+  config_path: ''
   threads: '16'
   ref_fasta: '/path/to/reference.fasta'
   modules: ['align','variant_calling','annotation','excel_postprocessing']

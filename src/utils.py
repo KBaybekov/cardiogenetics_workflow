@@ -76,7 +76,7 @@ def update_yaml(file_path: str, new_data: dict):
         yaml.dump(current_data, file, default_flow_style=False)
 
 
-def load_templates(path: str = 'local_configs/'):
+def load_templates(path: str):
     """
     Загружает конфигурационные файлы (machines, modules, samples) из указанной директории.
     Выдаёт ошибку в случае отсутствия файла или проблем с его загрузкой.
