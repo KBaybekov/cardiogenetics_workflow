@@ -7,6 +7,7 @@ def parse_cli_args():
     """
     arg_descriptions = load_yaml('config/arg_descriptions.yaml')
     default_values = load_yaml('config/default_values.yaml')
+    print(default_values)
 
     parser = argparse.ArgumentParser(
         description=arg_descriptions['prolog'], 
