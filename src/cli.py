@@ -7,9 +7,7 @@ def parse_cli_args():
     Функция для обработки аргументов командной строки
     """
     arg_descriptions = load_yaml('config/arg_descriptions.yaml')
-    default_values = load_yaml(f"{os.path.dirname(os.path.realpath(__file__)).replace('src', 'config')}/default_values.yaml",
-                               critical=True)
-    
+        
     parser = argparse.ArgumentParser(
         description=arg_descriptions['prolog'], 
         epilog=arg_descriptions['epilog']
@@ -41,6 +39,10 @@ def parse_cli_args():
 
     if args.modules != '':
         args.modules = args.modules.split(',')
+
+    # Загрузка значений по умолчанию
+    default_values = load_yaml(f"{os.path.dirname(os.path.realpath(__file__)).replace('src', 'config')}/default_values.yaml",
+                               critical=True)
 
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
     for arg, default_value in default_values.items():
