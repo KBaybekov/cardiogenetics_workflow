@@ -1,59 +1,3 @@
-all:
-  folders:
-    input:
-    output:
-      log_dir: "Log"`
-      tmp_dir: "tmp"
-      qc_dir:  "QC"
-      bam_dir: "bam"
-      vcf_dir: "vcf"
-      ann_dir: "annotation"
-      excel_dir: "excel"
-
-  source_extension: "_R1.fastq.gz"
-
-  filenames:
-    filename: "os.path.basename(sample)"
-    basename: "{filename.split('_')[0]}_{filename.split('_')[1]}"
-    raw_fastqs: "[sample, sample.replace('_R1', '_R2')]"
-    trim_galore_fastqs: "[s.replace({folders["input_dir"]}, {folders["tmp_dir"]}).replace('.fastq.gz', '_val_{({filenames["raw_fastqs"]}.index(s)+1)}.fq.gz') for s in {filenames["raw_fastqs"]}]"
-    trimmomatic_fastqs: "' '.join(['{folders["tmp_dir"]}{filenames["basename"]}_{i}P.fq' for i in [1,2]])"
-    abra_bam: "{folders['bam_dir']}{filenames['basename']}_abra2.bam"
-    in_bam: "{folders['tmp_dir']}primary.bam"
-    sorted_bam: "{folders['tmp_dir']}sorted.bam"
-    tmp_vcf_freebayes: "{folders['tmp_dir']}{filenames['basename'}_freebayes.vcf"
-    vcf_freebayes: "{folders['vcf_dir']}{filenames['basename'}_freebayes.vcf"
-    tmp_vcf_deepvariant: "{folders['tmp_dir']}{filenames['basename'}_deepvariant.vcf"
-    vcf_deepvariant: "{folders['vcf_dir']}{filenames['basename'}_deepvariant.vcf"
-    gvcf_deepvariant: "{vcf_deepvariant.replace('vcf','gvcf')}"
-    merged_vcf: "{folders["vcf_dir"]}{filenames['basename'}_merged.vcf.gz"
-    annovar_vcf: "{folders['annotation_dir']}{filenames['basename'}_annovar"
-
-  commands:
-    - "trim_galore"
-    - "trimmomatic"
-    - "fastqc"
-    - "aligning"
-    - "samtools_sort"
-    - "samtools_index"
-    - "abra2"
-    - "samtools_index_abra"
-    - "freebayes"
-    - "deepvariant"
-    - "fb_vcf_filtering"
-    - "fb_bgzip"
-    - "dv_vcf_filtering"
-    - "dv_bgzip"
-    - "vcf_intersection"
-    - "merged_vcf_actions"
-    - "annovar_freebayes"
-    - "cravat_freebayes"
-    - "annovar_deepvariant"
-    - "cravat_deepvariant"
-    - "remove_tmp_files"
-    - "abra2_localization"
-
-
 align:
   folders:
     input:
@@ -75,6 +19,17 @@ align:
     in_bam: "{folders['tmp_dir']}primary.bam"
     sorted_bam: "{folders['tmp_dir']}sorted.bam"
 
+  commands:
+    - "trim_galore"
+    - "trimmomatic"
+    - "fastqc"
+    - "aligning"
+    - "samtools_sort"
+    - "samtools_index"
+    - "abra2"
+    - "samtools_index_abra"
+    - "remove_tmp_files"
+
 
 variant_calling:
   folders:
@@ -94,6 +49,17 @@ variant_calling:
     vcf_deepvariant: "{folders['vcf_dir']}{filenames['basename'}_deepvariant.vcf.gz"
     gvcf_deepvariant: "vcf_deepvariant.replace('vcf','gvcf')"
 
+  commands:
+    - "freebayes"
+    - "deepvariant"
+    - "fb_vcf_filtering"
+    - "fb_bgzip"
+    - "dv_vcf_filtering"
+    - "dv_bgzip"
+    - "vcf_intersection"
+    - "merged_vcf_actions"
+    - "remove_tmp_files"
+
 
 annotation:
   folders:
@@ -109,6 +75,8 @@ annotation:
     filename: "os.path.basename(sample)"
     basename: "{filename.split('_')[0]}_{filename.split('_')[1]}"
     annovar_vcf: "{folders['annotation_dir']}{filenames['basename'}_annovar"
+
+ы
 
 
 excel_postprocessing:

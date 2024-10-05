@@ -18,4 +18,4 @@ annovar_freebayes: '{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcf
 cravat_freebayes: '{programms["cravat"]} run {folders["annotation_dir"]}{filenames["basename"]}_freebayes.hg38_multianno.vcf -l hg38 -t excel -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["basename"]}_cravat_freebayes'
 annovar_deepvariant: '{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcfinput {folders["vcf_dir"]}{filenames["basename"]}_deepvariant.vcf {folders["annovar_dir"]}humandb/ -buildver hg38 -out {folders["annotation_dir"]}{filenames["basename"]}_deepvariant -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish'
 cravat_deepvariant: '{programms["cravat"]} run {folders["annotation_dir"]}{filenames["basename"]}_deepvariant.hg38_multianno.vcf -l hg38 -t excel -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["basename"]}_cravat_deepvariant'
-remove_tmp_files: 'rm {folders["tmp_dir"]}{filenames["basename"]}*'
+remove_tmp_files: 'rm -rf {folders["tmp_dir"]}{filenames["basename"]}*'
