@@ -28,11 +28,14 @@ class ModuleRunner:
         self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extension)
 
         # Генеририруем команды
-        self.cmd_data = generate_cmd_data(pipeline_args=x, folders=self.folders,
+        self.cmd_data = generate_cmd_data(args=x, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
                                     cmd_list=self.commands, commands=x.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', x.log_dir, self.cmd_data)
+        # Если режим демонстрации активен, завершаем выполнение
+        if x.demo == 'yes':
+            return
 
         # Алиас
         c = self.cmd_data
@@ -40,15 +43,10 @@ class ModuleRunner:
         module_result_dict[module] = {'status': True, 'samples':{}}
 
         # Создаём пути
-
         create_paths(self.folders)
 
         # Инициализируем CommandExecutor
         exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
-
-        # Если режим демонстрации активен, завершаем выполнение
-        if x.demo == 'yes':
-            return
 
         # Выполняем команды для каждого образца
         print(f'Module: {module}')
