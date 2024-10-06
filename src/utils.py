@@ -241,6 +241,7 @@ def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
         if key in cmd_list:
             # Используем eval() для вычисления выражений в строках
             try:
+                print(instruction)
                 # Выполняем инструкцию, подставляя доступные переменные
                 generated_cmds[key] = eval(instruction, context)
             except Exception as e:
