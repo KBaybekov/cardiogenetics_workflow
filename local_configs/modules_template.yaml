@@ -3,7 +3,7 @@ align:
     input:
     output:
       log_dir:
-      Log
+        Log
       tmp_dir:
 			  tmp
       qc_dir:
