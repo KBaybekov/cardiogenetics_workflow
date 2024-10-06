@@ -5,32 +5,32 @@ align:
       log_dir:
         Log
       tmp_dir:
-			  tmp
+        tmp
       qc_dir:
-			  QC
+        QC
       bam_dir:
-			  bam
+        bam
   
   source_extension:
 		_R1.fastq.gz
 
   filenames:
     filename:
-			os.path.basename(sample)
+      os.path.basename(sample)
     basename:
-			{filename.split('_')[0]}_{filename.split('_')[1]}
+      {filename.split('_')[0]}_{filename.split('_')[1]}
     raw_fastqs:
-			[sample, sample.replace('_R1', '_R2')]
+      [sample, sample.replace('_R1', '_R2')]
     trim_galore_fastqs:
-			[s.replace({folders['input_dir']}, {folders['tmp_dir']}).replace('.fastq.gz', '_val_{({filenames['raw_fastqs']}.index(s)+1)}.fq.gz') for s in {filenames['raw_fastqs']}]
+      [s.replace({folders['input_dir']}, {folders['tmp_dir']}).replace('.fastq.gz', '_val_{({filenames['raw_fastqs']}.index(s)+1)}.fq.gz') for s in {filenames['raw_fastqs']}]
     trimmomatic_fastqs:
-			' '.join(['{folders['tmp_dir']}{filenames['basename']}_{i}P.fq' for i in [1,2]])
+      ' '.join(['{folders['tmp_dir']}{filenames['basename']}_{i}P.fq' for i in [1,2]])
     abra_bam:
-			{folders['bam_dir']}{filenames['basename']}_abra2.bam
+      {folders['bam_dir']}{filenames['basename']}_abra2.bam
     in_bam:
-			{folders['tmp_dir']}primary.bam
+      {folders['tmp_dir']}primary.bam
     sorted_bam:
-			{folders['tmp_dir']}sorted.bam
+      {folders['tmp_dir']}sorted.bam
 
   commands:
     - trim_galore
@@ -49,28 +49,28 @@ variant_calling:
     input:
     output:
       log_dir:
-			  Log
+        Log
       tmp_dir:
-			  tmp
+        tmp
       vcf_dir:
-			  vcf
+        vcf
   
   source_extension:
 		.bam
   
   filenames:
     filename:
-			os.path.basename(sample)
+      os.path.basename(sample)
     basename:
-			{filename.split('_')[0]}_{filename.split('_')[1]}
+      {filename.split('_')[0]}_{filename.split('_')[1]}
     abra_bam:
-			{folders['bam_dir']}{filenames['basename']}_abra2.bam
+      {folders['bam_dir']}{filenames['basename']}_abra2.bam
     vcf_freebayes:
-			{folders['vcf_dir']}{filenames['basename']}_freebayes.vcf
+      {folders['vcf_dir']}{filenames['basename']}_freebayes.vcf
     vcf_deepvariant:
-			{folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz
+      {folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz
     gvcf_deepvariant:
-			{vcf_deepvariant.replace('vcf','gvcf')}
+      {vcf_deepvariant.replace('vcf','gvcf')}
 
   commands:
     - freebayes
@@ -89,22 +89,22 @@ annotation:
     input:
     output:
       log_dir:
-			  Log
+        Log
       tmp_dir:
-			  tmp
+        tmp
       ann_dir:
-			  annotation
+        annotation
   
   source_extension:
 		.vcf.gz
   
   filenames:
     filename:
-			os.path.basename(sample)
+      os.path.basename(sample)
     basename:
-			{filename.split('_')[0]}_{filename.split('_')[1]}
+      {filename.split('_')[0]}_{filename.split('_')[1]}
     annovar_vcf:
-			{folders['ann_dir']}{filenames['basename']}_annovar
+      {folders['ann_dir']}{filenames['basename']}_annovar
 
 
 excel_postprocessing:
@@ -112,11 +112,11 @@ excel_postprocessing:
     input:
     output:
       log_dir:
-			  Log
+        Log
       tmp_dir:
-			  tmp
+        tmp
       excel_dir:
-			  excel
+        excel
   
   source_extension:
 		.tsv
