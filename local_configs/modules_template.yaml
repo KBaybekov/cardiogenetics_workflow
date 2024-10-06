@@ -2,34 +2,34 @@ align:
   folders:
     input:
     output:
-      log_dir: |
+      log_dir:
 			  Log
-      tmp_dir: |
+      tmp_dir:
 			  tmp
-      qc_dir: |
+      qc_dir:
 			  QC
-      bam_dir: |
+      bam_dir:
 			  bam
   
-  source_extension: |
+  source_extension:
 		_R1.fastq.gz
 
   filenames:
-    filename: |
+    filename:
 			os.path.basename(sample)
-    basename: |
+    basename:
 			{filename.split('_')[0]}_{filename.split('_')[1]}
-    raw_fastqs: |
+    raw_fastqs:
 			[sample, sample.replace('_R1', '_R2')]
-    trim_galore_fastqs: |
+    trim_galore_fastqs:
 			[s.replace({folders['input_dir']}, {folders['tmp_dir']}).replace('.fastq.gz', '_val_{({filenames['raw_fastqs']}.index(s)+1)}.fq.gz') for s in {filenames['raw_fastqs']}]
-    trimmomatic_fastqs: |
+    trimmomatic_fastqs:
 			' '.join(['{folders['tmp_dir']}{filenames['basename']}_{i}P.fq' for i in [1,2]])
-    abra_bam: |
+    abra_bam:
 			{folders['bam_dir']}{filenames['basename']}_abra2.bam
-    in_bam: |
+    in_bam:
 			{folders['tmp_dir']}primary.bam
-    sorted_bam: |
+    sorted_bam:
 			{folders['tmp_dir']}sorted.bam
 
   commands:
@@ -48,28 +48,28 @@ variant_calling:
   folders:
     input:
     output:
-      log_dir: |
+      log_dir:
 			  Log
-      tmp_dir: |
+      tmp_dir:
 			  tmp
-      vcf_dir: |
+      vcf_dir:
 			  vcf
   
-  source_extension: |
+  source_extension:
 		.bam
   
   filenames:
-    filename: |
+    filename:
 			os.path.basename(sample)
-    basename: |
+    basename:
 			{filename.split('_')[0]}_{filename.split('_')[1]}
-    abra_bam: |
+    abra_bam:
 			{folders['bam_dir']}{filenames['basename']}_abra2.bam
-    vcf_freebayes: |
+    vcf_freebayes:
 			{folders['vcf_dir']}{filenames['basename']}_freebayes.vcf
-    vcf_deepvariant: |
+    vcf_deepvariant:
 			{folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz
-    gvcf_deepvariant: |
+    gvcf_deepvariant:
 			{vcf_deepvariant.replace('vcf','gvcf')}
 
   commands:
@@ -88,22 +88,22 @@ annotation:
   folders:
     input:
     output:
-      log_dir: |
+      log_dir:
 			  Log
-      tmp_dir: |
+      tmp_dir:
 			  tmp
-      ann_dir: |
+      ann_dir:
 			  annotation
   
-  source_extension: |
+  source_extension:
 		.vcf.gz
   
   filenames:
-    filename: |
+    filename:
 			os.path.basename(sample)
-    basename: |
+    basename:
 			{filename.split('_')[0]}_{filename.split('_')[1]}
-    annovar_vcf: |
+    annovar_vcf:
 			{folders['ann_dir']}{filenames['basename']}_annovar
 
 
@@ -111,12 +111,12 @@ excel_postprocessing:
   folders:
     input:
     output:
-      log_dir: |
+      log_dir:
 			  Log
-      tmp_dir: |
+      tmp_dir:
 			  tmp
-      excel_dir: |
+      excel_dir:
 			  excel
   
-  source_extension: |
+  source_extension:
 		.tsv
