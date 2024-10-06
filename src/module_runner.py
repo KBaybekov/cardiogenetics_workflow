@@ -26,7 +26,6 @@ class ModuleRunner:
 
         # Получаем список образцов
         self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extension)
-        print(self.folders)
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(args=x, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
@@ -65,6 +64,7 @@ class ModuleRunner:
         """
         # Составляем полные пути для папок
         data['folders'] = get_paths(data['folders'], input_dir, output_dir)
+        print(data['folders'])
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
         for key,value in data.items():
             setattr(self, key, value)
