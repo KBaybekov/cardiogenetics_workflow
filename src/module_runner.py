@@ -27,7 +27,7 @@ class ModuleRunner:
         # Получаем список образцов
         self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extension)
         # Генеририруем команды
-        self.cmd_data = generate_cmd_data(args=x, folders=self.folders,
+        self.cmd_data = generate_cmd_data(args=x.__dict__, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
                                     cmd_list=self.commands, commands=x.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
