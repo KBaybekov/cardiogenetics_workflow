@@ -212,7 +212,7 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
             'filenames': generated_filenames,
             'os': os  # Добавляем os в контекст, чтобы os.path был доступен
             }
-
+    print(folders)
     # Проходим по каждому ключу в filenames и вычисляем значение
     for key, instruction in filenames.items():
         # Используем eval() для вычисления выражений в строках
@@ -223,7 +223,6 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
             # Выполняем инструкцию, подставляя доступные переменные
             context['filenames'][key] = eval(instruction, context)
             print(context['filenames'])
-            print(context['filenames'][key])
         except Exception as e:
             print(f"Ошибка при обработке {key}: {e}")
     
