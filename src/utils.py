@@ -51,7 +51,7 @@ def save_yaml(filename, path, data):
 
     # Записываем данные в YAML-файл
     with open(file_path, 'w') as yaml_file:
-        yaml.dump(data, yaml_file, default_flow_style=False)
+        yaml.dump(data, yaml_file, default_flow_style=False, sort_keys=False)
 
 
 def update_yaml(file_path: str, new_data: dict):
