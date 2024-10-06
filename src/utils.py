@@ -155,7 +155,6 @@ def generate_cmd_data(args:dict, folders:dict,
     cmd_data = {}
     # Для каждого образца создаём набор команд
     for sample in samples:
-        print(folders)
         # Генерируем файлы для конкретного образца
         sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
         # Объединяем все переменные в один словарь для подстановки в eval()
