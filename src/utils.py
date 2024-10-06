@@ -222,6 +222,7 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
             # Выполняем eval с корректной строкой
             # Выполняем инструкцию, подставляя доступные переменные
             context['filenames'][key] = eval(instruction, context)
+            print(context['filenames'])
             print(context['filenames'][key])
         except Exception as e:
             print(f"Ошибка при обработке {key}: {e}")
