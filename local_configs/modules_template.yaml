@@ -22,15 +22,15 @@ align:
     raw_fastqs: |
       [sample, sample.replace('_R1', '_R2')]
     trim_galore_fastqs: |
-      [s.replace(dir, tmp_dir).replace('.fastq.gz', f'_val_{(raw_fastqs.index(s)+1)}.fq.gz') for s in raw_fastqs]
+      [s.replace(dir, tmp_dir).replace('.fastq.gz', f'_val_{(filenames['raw_fastqs'].index(s)+1)}.fq.gz') for s in raw_fastqs]
     trimmomatic_fastqs: |
-      ' '.join([f'{folders['tmp_dir']}{filenames['basename']}_{i}P.fq' for i in [1,2]])
+      ' '.join([f"{folders['tmp_dir']}{filenames['basename']}_{i}P.fq" for i in [1,2]])
     abra_bam: |
-      f"folders['bam_dir']}{filenames['basename']}_abra2.bam"
+      f"{folders['bam_dir']}{filenames['basename']}_abra2.bam"
     in_bam: |
-      f"folders['tmp_dir']}primary.bam"
+      f"{folders['tmp_dir']}primary.bam"
     sorted_bam: |
-      f"folders['tmp_dir']}sorted.bam"
+      f"{folders['tmp_dir']}sorted.bam"
 
   commands:
     - trim_galore
