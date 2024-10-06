@@ -20,17 +20,17 @@ align:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     raw_fastqs: |
-      {sample, sample.replace('_R1', '_R2')]
+      [sample, sample.replace('_R1', '_R2')]
     trim_galore_fastqs: |
-      {sample.replace({folders['input_dir']}, {folders['tmp_dir']}).replace('.fastq.gz', '_val_{({filenames['raw_fastqs']}.index(s)+1)}.fq.gz') for s in {filenames['raw_fastqs']}]
+      [s.replace(dir, tmp_dir).replace('.fastq.gz', f'_val_{(raw_fastqs.index(s)+1)}.fq.gz') for s in raw_fastqs]
     trimmomatic_fastqs: |
-      { '.join(['{folders['tmp_dir']}{filenames['basename']}_{i}P.fq' for i in [1,2]])
+      ' '.join([f'{folders['tmp_dir']}{filenames['basename']}_{i}P.fq' for i in [1,2]])
     abra_bam: |
-      {folders['bam_dir']}{filenames['basename']}_abra2.bam
+      f"folders['bam_dir']}{filenames['basename']}_abra2.bam"
     in_bam: |
-      {folders['tmp_dir']}primary.bam
+      f"folders['tmp_dir']}primary.bam"
     sorted_bam: |
-      {folders['tmp_dir']}sorted.bam
+      f"folders['tmp_dir']}sorted.bam"
 
   commands:
     - trim_galore
@@ -62,15 +62,15 @@ variant_calling:
     filename: |
       os.path.basename(sample).split('.')[0]
     basename: |
-      {filename.split('_')[0]}_{filename.split('_')[1]}
+      f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     abra_bam: |
-      {folders['bam_dir']}{filenames['basename']}_abra2.bam
+      f"{folders['bam_dir']}{filenames['basename']}_abra2.bam"
     vcf_freebayes: |
-      {folders['vcf_dir']}{filenames['basename']}_freebayes.vcf
+      f"{folders['vcf_dir']}{filenames['basename']}_freebayes.vcf"
     vcf_deepvariant: |
-      {folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz
+      f"{folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz"
     gvcf_deepvariant: |
-      {vcf_deepvariant.replace('vcf','gvcf')}
+      filenames['vcf_deepvariant'].replace('vcf','gvcf')}
 
   commands:
     - freebayes
@@ -102,9 +102,9 @@ annotation:
     filename: |
       os.path.basename(sample).split('.')[0]
     basename: |
-      {filename.split('_')[0]}_{filename.split('_')[1]}
+      f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     annovar_vcf: |
-      {folders['ann_dir']}{filenames['basename']}_annovar
+      f"{folders['ann_dir']}{filenames['basename']}_annovar"
 
 
 excel_postprocessing:
