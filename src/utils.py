@@ -226,13 +226,22 @@ def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
     # Словарь для хранения сгенерированных путей
     generated_cmds = {}
 
+    # Объединяем все переменные в один словарь для подстановки в eval()
+    context = {
+        'programms': executables,
+        'folders': folders,
+        'filenames': filenames,
+        'args': args,
+        'os': os  # Добавляем os в контекст, чтобы os.path был доступен
+    }
+
     # Проходим по каждому ключу в filenames и вычисляем значение
     for key, instruction in commands.items():
         if key in cmd_list:
             # Используем eval() для вычисления выражений в строках
             try:
                 # Выполняем инструкцию, подставляя доступные переменные
-                generated_cmds[key] = eval(instruction, {'programms': executables, 'folders': folders, 'filenames': filenames,'args': args})
+                generated_cmds[key] = eval(instruction, context)
             except Exception as e:
                 print(f"Ошибка при обработке {key}: {e}")
     return generated_cmds
