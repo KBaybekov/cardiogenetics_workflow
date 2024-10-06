@@ -155,12 +155,13 @@ def generate_cmd_data(args:dict, folders:dict,
     cmd_data = {}
     # Для каждого образца создаём набор команд
     for sample in samples:
+        print(folders)
         # Генерируем файлы для конкретного образца
         sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
         # Объединяем все переменные в один словарь для подстановки в eval()
         context['filenames'] = sample_filenames
         # Генерируем команды на основе аргументов, файлов и шаблонов команд
-        cmds = generate_commands(args=args, context=context)
+        cmds = generate_commands(context=context, cmd_list=cmd_list, commands=commands)
         
         # Добавляем сгенерированные команды в словарь для текущего образца
         cmd_data[sample] = cmds
@@ -212,7 +213,6 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
             'filenames': generated_filenames,
             'os': os  # Добавляем os в контекст, чтобы os.path был доступен
             }
-    print(folders)
     # Проходим по каждому ключу в filenames и вычисляем значение
     for key, instruction in filenames.items():
         # Используем eval() для вычисления выражений в строках
