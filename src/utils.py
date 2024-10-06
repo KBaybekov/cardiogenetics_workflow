@@ -223,6 +223,7 @@ def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
     :param commands: Словарь с инструкциями для создания команд.
     :return: Словарь с результатами выполнения инструкций для команд.
     """
+    import os
     # Словарь для хранения сгенерированных путей
     generated_cmds = {}
 
