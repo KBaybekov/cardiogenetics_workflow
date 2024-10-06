@@ -144,16 +144,23 @@ def generate_cmd_data(args:dict, folders:dict,
     :param samples: Список образцов для обработки.
     :return: Словарь с командами для каждого образца.
     """
+    # Объединяем все переменные в один словарь для подстановки в eval()
+    context = {
+            'programms': executables,
+            'folders': folders,
+            'args': args,
+            'os': os  # Добавляем os в контекст, чтобы os.path был доступен
+        }
 
     cmd_data = {}
     # Для каждого образца создаём набор команд
     for sample in samples:
         # Генерируем файлы для конкретного образца
         sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
-
+        # Объединяем все переменные в один словарь для подстановки в eval()
+        context['filenames'] = sample_filenames
         # Генерируем команды на основе аргументов, файлов и шаблонов команд
-        cmds = generate_commands(args=args, folders=folders, executables=executables, filenames=sample_filenames,
-                                  commands=commands, cmd_list=cmd_list)
+        cmds = generate_commands(args=args, context=context)
         
         # Добавляем сгенерированные команды в словарь для текущего образца
         cmd_data[sample] = cmds
@@ -198,43 +205,38 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
     """
     # Словарь для хранения сгенерированных путей
     generated_filenames = {}
+    # Объединяем все переменные в один словарь для подстановки в eval()
+    context = {
+            'folders': folders,
+            'sample': sample,
+            'filenames': generated_filenames,
+            'os': os  # Добавляем os в контекст, чтобы os.path был доступен
+            }
 
     # Проходим по каждому ключу в filenames и вычисляем значение
     for key, instruction in filenames.items():
         # Используем eval() для вычисления выражений в строках
         try:
             # Выполняем инструкцию, подставляя доступные переменные
-            generated_filenames[key] = eval(instruction, {'sample': sample, 'folders': folders, 'filenames': generated_filenames,})
+            context['filenames'][key] = eval(instruction, context)
         except Exception as e:
             print(f"Ошибка при обработке {key}: {e}")
     
     return generated_filenames
 
 
-def generate_commands(executables:dict, folders:dict, args:dict, filenames:dict,
+def generate_commands(context:dict,
                       commands:dict, cmd_list:list):
     """
     Генерирует словарь с командами для сэмпла на основе инструкций в cmds_template.
 
-    :param executables: Словарь со строками для вызова программ.
-    :param folders: Словарь с путями к директориям.
-    :param filenames: Словарь с именами для файлов.
-    :param args: Словарь с аргументами для команд.
+    :param context: Словарь с со словарями, содержащими подстроки.
     :param commands: Словарь с инструкциями для создания команд.
     :return: Словарь с результатами выполнения инструкций для команд.
     """
-    import os
+    
     # Словарь для хранения сгенерированных путей
     generated_cmds = {}
-
-    # Объединяем все переменные в один словарь для подстановки в eval()
-    context = {
-        'programms': executables,
-        'folders': folders,
-        'filenames': filenames,
-        'args': args,
-        'os': os  # Добавляем os в контекст, чтобы os.path был доступен
-    }
 
     # Проходим по каждому ключу в filenames и вычисляем значение
     for key, instruction in commands.items():
