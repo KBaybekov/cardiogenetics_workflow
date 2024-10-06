@@ -1,12 +1,12 @@
 trim_galore: |
-  f'{programms["trim_galore"]} --length 35 --output_dir {folders["tmp_dir"]} --cores {args["threads"]} --paired {" ".join(filenames["raw_fastqs"])}''
+  f'{programms["trim_galore"]} --length 35 --output_dir {folders["tmp_dir"]} --cores {args["threads"]} --paired {" ".join(filenames["raw_fastqs"])}'
 trimmomatic: |
   f'java -jar {programms["trimmomatic"]} PE -threads {args["threads"]} {" ".join(filenames["trim_galore_fastqs"])} -baseout {folders["tmp_dir"]}{filenames["basename"]}.fq SLIDINGWINDOW:4:20 HEADCROP:10 MINLEN:35'
 fastqc: |
   f'{programms["fastqc"]} --quiet --threads 2 -o {folders["qc_dir"]} {folders["tmp_dir"]}{filenames["basename"]}*P.fq'
 aligning: |
-  f'bwa mem -t {args["threads"]} -M {args["ref"]} {filenames["trimmomatic_fastqs"]} | {programms["samblaster"]} -M -e -r -q --addMateTags | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}
- f"{folders: |
+  f'bwa mem -t {args["threads"]} -M {args["ref"]} {filenames["trimmomatic_fastqs"]} | {programms["samblaster"]} -M -e -r -q --addMateTags | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}'
+samtools_sort: |
   f'{programms["samtools"]} sort -@ {args["threads"]} {filenames["in_bam"]} > {filenames["sorted_bam"]}'
 samtools_index: |
   f'{programms["samtools"]} index -@ {args["threads"]} {filenames["sorted_bam"]}'
@@ -29,7 +29,7 @@ dv_bgzip: |
 vcf_intersection: |
   f'bcftools isec  -p {folders["tmp_dir"]}isec/ {filenames["vcf_deepvariant"]}.gz {filenames["vcf_freebayes"]}.gz'
 merged_vcf_actions: |
-  f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["merged_vcf"]} '
+  f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["merged_vcf"]}'
 annovar_freebayes: |
   f'{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcfinput {folders["vcf_dir"]}{filenames["basename"]}_freebayes.vcf {folders["annovar_dir"]}humandb/ -buildver hg38 -out {folders["annotation_dir"]}{filenames["basename"]}_freebayes -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish'
 cravat_freebayes: |
