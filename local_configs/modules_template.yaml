@@ -18,7 +18,7 @@ align:
     filename: |
       os.path.basename(sample)
     basename: |
-      {filename.split('_')[0]}_{filename.split('_')[1]}
+      {{filename.split('_')[0]}_{filename.split('_')[1]}}
     raw_fastqs: |
       {sample, sample.replace('_R1', '_R2')]
     trim_galore_fastqs: |

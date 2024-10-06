@@ -217,8 +217,12 @@ def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> di
     for key, instruction in filenames.items():
         # Используем eval() для вычисления выражений в строках
         try:
+            # Заменяем {{ и }} на { и }
+            instruction = instruction.replace('{{', '{').replace('}}', '}')
+            # Выполняем eval с корректной строкой
             # Выполняем инструкцию, подставляя доступные переменные
             context['filenames'][key] = eval(instruction, context)
+            print(context['filenames'][key])
         except Exception as e:
             print(f"Ошибка при обработке {key}: {e}")
     
@@ -243,7 +247,7 @@ def generate_commands(context:dict,
         if key in cmd_list:
             # Используем eval() для вычисления выражений в строках
             try:
-                print(instruction)
+                #print(instruction)
                 # Выполняем инструкцию, подставляя доступные переменные
                 generated_cmds[key] = eval(instruction, context)
             except Exception as e:
