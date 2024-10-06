@@ -64,7 +64,6 @@ class ModuleRunner:
         """
         # Составляем полные пути для папок
         data['folders'] = get_paths(data['folders'], input_dir, output_dir)
-        print(data['folders'])
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
         for key,value in data.items():
             setattr(self, key, value)
