@@ -8,6 +8,10 @@ align:
         tmp
       qc_dir:
         QC
+      fastqc_dir:
+        QC/fastQC
+      qualimap_dir:
+        QC/qualimap
       bam_dir:
         bam
   
@@ -33,15 +37,22 @@ align:
       f"{folders['tmp_dir']}sorted.bam"
 
   commands:
-    - trim_galore
-    - trimmomatic
-    - fastqc
-    - aligning
-    - samtools_sort
-    - samtools_index
-    - abra2
-    - samtools_index_abra
-    - remove_tmp_files
+    before_batch:
+      - qualimap_headless_var
+      - abra2_lc_var
+    sample_level:
+      - trim_galore
+      - trimmomatic
+      - aligning
+      - samtools_sort
+      - samtools_index
+      - abra2
+      - samtools_index_abra
+      - qualimap
+      - remove_tmp_files
+    after_batch:
+      - fastqc_raw
+      - multiqc
 
 
 variant_calling:

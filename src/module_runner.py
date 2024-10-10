@@ -9,7 +9,7 @@ class ModuleRunner:
         self.folders: dict
         self.source_extension: str
         self.filenames: dict
-        self.commands: list
+        self.commands: dict
         
         # Собственные данные класса
         self.cmd_data: dict
@@ -29,7 +29,7 @@ class ModuleRunner:
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(args=x.__dict__, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
-                                    cmd_list=self.commands, commands=x.cmds_template, samples=self.samples)
+                                    cmds_dict=self.commands, commands=x.cmds_template, samples=self.samples)
         # Логгируем сгенерированные команды для модуля
         save_yaml(f'cmd_data_{module}', x.log_dir, self.cmd_data)
         # Если режим демонстрации активен, завершаем выполнение

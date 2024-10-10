@@ -133,7 +133,7 @@ def get_paths(folders: dict, input_dir: str, output_dir: str) -> dict:
 def generate_cmd_data(args:dict, folders:dict,
                         executables:dict,
                         filenames:dict, commands:dict,
-                        cmd_list:list, samples:list):
+                        cmds_dict:dict, samples:list):
     """
     Генерирует команды для каждого образца на основе аргументов, файлов и шаблонов команд.
     
@@ -142,7 +142,7 @@ def generate_cmd_data(args:dict, folders:dict,
     :param executables: Словарь с исполняемыми файлами.
     :param filenames: Словарь с шаблонами файлов для текущего образца.
     :param commands: Шаблоны команд для выполнения.
-    :param cmd_list: Список команд, которые нужно сгенерировать.
+    :param cmds_dict: Список команд, которые нужно сгенерировать.
     :param samples: Список образцов для обработки.
     :return: Словарь с командами для каждого образца.
     """
@@ -155,17 +155,23 @@ def generate_cmd_data(args:dict, folders:dict,
         }
 
     cmd_data = {}
-    # Для каждого образца создаём набор команд
+    # Создаём набор команд, которые выполнятся однократно перед прогоном по образцам
+    cmd_data['before_batch'] = generate_commands(context=context, cmd_list=cmds_dict['before_batch'], commands=commands)
+    
+    # Создаём набор команд для каждого образца
     for sample in samples:
         # Генерируем файлы для конкретного образца
         sample_filenames = generate_sample_filenames(sample=sample, folders=folders, filenames=filenames)
         # Объединяем все переменные в один словарь для подстановки в eval()
         context['filenames'] = sample_filenames
-        # Генерируем команды на основе аргументов, файлов и шаблонов команд
-        cmds = generate_commands(context=context, cmd_list=cmd_list, commands=commands)
+        # Генерируем команды для образцов на основе аргументов, файлов и шаблонов команд
+        cmds = generate_commands(context=context, cmd_list=cmds_dict['sample_level'], commands=commands)
         
         # Добавляем сгенерированные команды в словарь для текущего образца
         cmd_data[sample] = cmds
+
+    # Создаём набор команд, которые выполнятся однократно после прогона по образцам
+    cmd_data['after_batch'] = generate_commands(context=context, cmd_list=cmds_dict['after_batch'], commands=commands)
     return cmd_data
 
 

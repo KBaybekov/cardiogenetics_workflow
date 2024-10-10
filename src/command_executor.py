@@ -14,9 +14,9 @@ class CommandExecutor:
         self.logs:dict
 
         self.logs = {
-            {'log':load_yaml(file_path=self.log)},
-            {'stdout':load_yaml(file_path=self.stdout)},
-            {'stderr':load_yaml(file_path=self.stderr)}}
+            {'log':load_yaml(file_path=log_space['log_data'])},
+            {'stdout':load_yaml(file_path=log_space['stdout_log'])},
+            {'stderr':load_yaml(file_path=log_space['stderr_log'])}}
         self.cmd_data = cmd_data
         self.log = log_space['log_data']
         self.stdout = log_space['stdout_log']
@@ -34,6 +34,7 @@ class CommandExecutor:
         Выполняет команды для списка образцов.
         
         :param samples: Список образцов.
+        :param samples_result_dict: Данные о результатах выполнения пайплайна для каждого образца
         """
         cmds:dict
         

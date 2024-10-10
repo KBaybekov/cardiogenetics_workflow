@@ -1,9 +1,17 @@
+#REPLACE feature-file WITH VAR IN QUALIMAP
+
+#before batch
+#align
+qualimap_headless_var: |
+  export DISPLAY=:0
+abra2_lc_var: |
+  export LC_ALL=en_US.UTF-8
+
+#align
 trim_galore: |
   f'{programms["trim_galore"]} --length 35 --output_dir {folders["tmp_dir"]} --cores {args["threads"]} --paired {" ".join(filenames["raw_fastqs"])}'
 trimmomatic: |
   f'java -jar {programms["trimmomatic"]} PE -threads {args["threads"]} {" ".join(filenames["trim_galore_fastqs"])} -baseout {folders["tmp_dir"]}{filenames["basename"]}.fq SLIDINGWINDOW:4:20 HEADCROP:10 MINLEN:35'
-fastqc: |
-  f'{programms["fastqc"]} --quiet --threads 2 -o {folders["qc_dir"]} {folders["tmp_dir"]}{filenames["basename"]}*P.fq'
 aligning: |
   f'bwa mem -t {args["threads"]} -M {args["ref_fasta"]} {filenames["trimmomatic_fastqs"]} | {programms["samblaster"]} -M -e -r -q --addMateTags | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}'
 samtools_sort: |
@@ -14,6 +22,10 @@ abra2: |
   f'java {programms["abra2"]} --log error --in {filenames["sorted_bam"]} --out {filenames["abra_bam"]} --ref {args["ref_fasta"]} --threads {args["threads"]} --tmpdir {folders["tmp_dir"]}'
 samtools_index_abra: |
   f'{programms["samtools"]} index -@ {args["threads"]} {filenames["abra_bam"]}'
+qualimap:
+  f'{programms["qualimap"]} bamqc --bam {filenames["abra_bam"]} -outdir {folders["qualimap_dir"]}{filenames["basename"]}/ -nt {args["threads"]} --feature-file /mnt/share/Сотрудники/Байбеков_Кирилл/ref/WES_bed/hg38_Twist_ILMN_Exome_2.5_Panel_Combined_Mito_no_chr.bed --collect-overlap-pairs --output-genome-coverage /mnt/share/Сотрудники/Байбеков_Кирилл/qualimap_test/cov.txt --outside-stats --paint-chromosome-limits --genome-gc-distr hg38 '
+
+#variant_calling
 freebayes: |
   f'{programms["freebayes"]} -f {args["ref_fasta"]} --standard-filters --report-genotype-likelihood-max --min-coverage 8 --min-alternate-qsum 40 --min-alternate-count 2 --min-alternate-fraction 0.1 {filenames["abra_bam"]} > {filenames["tmp_vcf_freebayes"]}'
 deepvariant: |
@@ -30,6 +42,8 @@ vcf_intersection: |
   f'bcftools isec  -p {folders["tmp_dir"]}isec/ {filenames["vcf_deepvariant"]}.gz {filenames["vcf_freebayes"]}.gz'
 merged_vcf_actions: |
   f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["merged_vcf"]}'
+
+#annotation
 annovar_freebayes: |
   f'{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcfinput {folders["vcf_dir"]}{filenames["basename"]}_freebayes.vcf {folders["annovar_dir"]}humandb/ -buildver hg38 -out {folders["annotation_dir"]}{filenames["basename"]}_freebayes -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish'
 cravat_freebayes: |
@@ -38,5 +52,20 @@ annovar_deepvariant: |
   f'{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcfinput {folders["vcf_dir"]}{filenames["basename"]}_deepvariant.vcf {folders["annovar_dir"]}humandb/ -buildver hg38 -out {folders["annotation_dir"]}{filenames["basename"]}_deepvariant -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish'
 cravat_deepvariant: |
   f'{programms["cravat"]} run {folders["annotation_dir"]}{filenames["basename"]}_deepvariant.hg38_multianno.vcf -l hg38 -t excel -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["basename"]}_cravat_deepvariant'
+
+#excel_postprocessing
+
+# removing tmp files
 remove_tmp_files: |
   f'rm -rf {folders["tmp_dir"]}{filenames["basename"]}*'
+
+
+#after batch
+# removing tmp folder
+remove_tmp_files: |
+  f'rm -rf {folders["tmp_dir"]}'
+#align
+fastqc_raw: |
+  f'{programms["fastqc"]} --quiet --threads {args["threads"]} -o {folders["fastqc_dir"]} {folders["input_dir"]}*.fastq.gz'
+multiqc:
+  f'{programms["multiqc"]} {folders["qc_dir"]} --outdir folders["qc_dir"]multiqc/ --interactive --export --quiet'
