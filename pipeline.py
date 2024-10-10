@@ -1,6 +1,5 @@
+#!/usr/bin/env python3
 from src import cli, pipeline_manager
-
-
 
 def main():
     # Парсинг аргументов командной строки
