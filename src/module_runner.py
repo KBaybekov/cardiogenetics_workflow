@@ -43,7 +43,7 @@ class ModuleRunner:
 
         # Создаём пути
         create_paths(self.folders)
-
+        print(x.log_space)
         # Инициализируем CommandExecutor
         exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
 
