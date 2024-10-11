@@ -28,6 +28,7 @@ def parse_cli_args():
     parser.add_argument('-dm', '--demo', default='', help=arg_descriptions['demo'])
     parser.add_argument('-cf', '--config_path', default='', help=arg_descriptions['config_path'])
     parser.add_argument('-cr', '--cravat_annotators', default='', help=arg_descriptions['cravat_annotators'])
+    parser.add_argument('-s', '--subfolders', default=False, help=arg_descriptions['subfolders'])
 
     # Парсим аргументы
     args = parser.parse_args()

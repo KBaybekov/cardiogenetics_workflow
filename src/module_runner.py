@@ -25,7 +25,7 @@ class ModuleRunner:
         self.load_module(x.modules_template[module], x.input_dir, x.output_dir)
 
         # Получаем список образцов
-        self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extensions)
+        self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extensions, x.subfolders)
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(args=x.__dict__, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,

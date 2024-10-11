@@ -24,6 +24,7 @@ class PipelineManager:
         self.exclude_samples:list
         self.executables: dict
         self.demo:str
+        self.subfolders:bool
         
         # Добавляем все элементы args как атрибуты класса
         for key, value in args.items():

@@ -176,7 +176,7 @@ def generate_cmd_data(args:dict, folders:dict,
 
 
 def generate_sample_list(in_samples: list, ex_samples: list,
-                         input_dir: str, extensions: tuple, subdirs:bool=False) -> list:
+                         input_dir: str, extensions: tuple, subfolders:bool=False) -> list:
     """
     Генерирует список файлов на основе включающих и исключающих образцов.
     Выдаёт ошибку, если итоговый список пустой.
@@ -188,21 +188,24 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     :param subdirs: поиск в подпапках.
     :return: Список путей к файлам.
     """
-    if subdirs:
+    if subfolders:
+        # Ищем все файлы в дереве папок с указанными расширениями
         samples = find_files(dir=input_dir, in_samples=in_samples, ex_samples=ex_samples, extensions=extensions)
-    # Ищем все файлы в директории с указанным расширением
-    samples = [s for s in os.listdir(input_dir) if s.endswith(extensions)]
-    # Если список включающих образцов непустой, фильтруем по нему
-    if len(in_samples) != 0:
-        samples = [s for s in samples if any(inclusion in s for inclusion in in_samples)]
-    # Если список исключающих образцов непустой, фильтруем по нему
-    if len(ex_samples) != 0:
-        samples = [s for s in samples if not any(exclusion in s for exclusion in ex_samples)]
+    else:
+        # Ищем все файлы в директории с указанными расширениями
+        samples = [s for s in os.listdir(input_dir) if s.endswith(extensions)]
+        # Если список включающих образцов непустой, фильтруем по нему
+        if len(in_samples) != 0:
+            samples = [s for s in samples if any(inclusion in s for inclusion in in_samples)]
+        # Если список исключающих образцов непустой, фильтруем по нему
+        if len(ex_samples) != 0:
+            samples = [s for s in samples if not any(exclusion in s for exclusion in ex_samples)]
+        samples = [os.path.join(input_dir, s) for s in samples]
     # Если итоговый список пустой, выдаём ошибку
     if not samples:
         raise ValueError("Итоговый список образцов пуст. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
     # Возвращаем полный путь к каждому файлу
-    return [os.path.join(input_dir, s) for s in samples]
+    return samples
 
 def find_files(dir:str, in_samples: list, ex_samples: list,extensions:tuple):
     """

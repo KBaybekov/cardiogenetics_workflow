@@ -21,3 +21,4 @@ variant_frequency_threshold: "Значение частоты встречаем
 demo: "[yes] Тестовый запуск пайплайна ()"
 config_path: "Путь для к локальным конфигурациям пайплайна ('local_configs/')"
 cravat_annotators: "Список аннотаторов для cravat, указаывается через запятую"
+subfolders: "[True] Поиск файлов в подпапках"
