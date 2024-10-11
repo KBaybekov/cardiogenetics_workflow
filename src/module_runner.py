@@ -7,7 +7,7 @@ class ModuleRunner:
     def __init__(self, pipeline_manager: PipelineManager):
         #Данные, получаемые из pipeline_manager.modules_template
         self.folders: dict
-        self.source_extension: str
+        self.source_extensions: tuple
         self.filenames: dict
         self.commands: dict
         
@@ -25,7 +25,7 @@ class ModuleRunner:
         self.load_module(x.modules_template[module], x.input_dir, x.output_dir)
 
         # Получаем список образцов
-        self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extension)
+        self.samples = generate_sample_list(x.include_samples, x.exclude_samples, x.input_dir, self.source_extensions)
         # Генеририруем команды
         self.cmd_data = generate_cmd_data(args=x.__dict__, folders=self.folders,
                                     executables=x.executables, filenames=self.filenames,
@@ -66,27 +66,8 @@ class ModuleRunner:
         data['folders'] = get_paths(data['folders'], input_dir, output_dir)
         # Устанавливаем атрибут modules_data в пространство экземпляра класса
         for key,value in data.items():
+            if key == 'source_extensions':
+                #Модифицируем список в кортеж для дальнейшего использования
+                setattr(self, key, tuple(value))
+                continue
             setattr(self, key, value)
-
-
-    def get_stage_vars(self, stages: list, input_dir:str, output_dir:str, all_stages_vars:dict):
-        """
-        Создаёт директории на основе stage_vars, не обращаясь напрямую к input_dir и output_dir.
-        
-        :param stages: Список этапов пайплайна
-        :param input_dir: Путь к директории для входных данных
-        :param output_dir: Путь к директории для выходных данных
-        :param all_stages_vars: Словарь с информацией о папках и расширениях для каждого этапа пайплайна
-        :return: Словарь с полными путями к созданным директориям
-        """
-        # Создаём список директорий для каждого этапа
-        folders  = {
-            module: {
-                **{key: os.path.join(input_dir, f'{value}/') for key, value in all_stages_vars[module]['folders'].get('input_dir', {}).items()},
-                **{key: os.path.join(output_dir, f'{value}/') for key, value in all_stages_vars[module]['folders'].get('output_dir', {}).items()}
-            }
-                    for module in stages}
-        source_extensions = {module: {all_stages_vars[module]['source_extension']}
-                            for module in stages}
-        # Возвращаем словарь с путями
-        return folders, source_extensions

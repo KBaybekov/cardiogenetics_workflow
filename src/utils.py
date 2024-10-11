@@ -176,7 +176,7 @@ def generate_cmd_data(args:dict, folders:dict,
 
 
 def generate_sample_list(in_samples: list, ex_samples: list,
-                         input_dir: str, extension: str):
+                         input_dir: str, extensions: tuple, subdirs:bool=False) -> list:
     """
     Генерирует список файлов на основе включающих и исключающих образцов.
     Выдаёт ошибку, если итоговый список пустой.
@@ -184,11 +184,14 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     :param in_samples: Список образцов, которые нужно включить.
     :param ex_samples: Список образцов, которые нужно исключить.
     :param input_dir: Директория, где искать файлы.
-    :param extension: Расширение файлов для поиска.
+    :param extensions: Расширения файлов для поиска.
+    :param subdirs: поиск в подпапках.
     :return: Список путей к файлам.
     """
+    if subdirs:
+        samples = find_files(dir=input_dir, in_samples=in_samples, ex_samples=ex_samples, extensions=extensions)
     # Ищем все файлы в директории с указанным расширением
-    samples = [s for s in os.listdir(input_dir) if s.endswith(extension)]
+    samples = [s for s in os.listdir(input_dir) if s.endswith(extensions)]
     # Если список включающих образцов непустой, фильтруем по нему
     if len(in_samples) != 0:
         samples = [s for s in samples if any(inclusion in s for inclusion in in_samples)]
@@ -200,6 +203,31 @@ def generate_sample_list(in_samples: list, ex_samples: list,
         raise ValueError("Итоговый список образцов пуст. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
     # Возвращаем полный путь к каждому файлу
     return [os.path.join(input_dir, s) for s in samples]
+
+def find_files(dir:str, in_samples: list, ex_samples: list,extensions:tuple):
+    """
+    Генерирует список файлов, проходя по дереву папок, корнем которого является dir.
+    Выдаёт ошибку, если итоговый список пустой.
+
+    :param in_samples: Список образцов, которые нужно включить.
+    :param ex_samples: Список образцов, которые нужно исключить.
+    :param dir: Директория, где искать файлы.
+    :param extensions: Кортеж расширений файлов для поиска.
+    :return: Список файлов с путями.
+    """
+    files = []
+    for root, _ds, fs in os.walk(dir):
+        samples = []
+        if in_samples:
+            ([os.path.join(root, f) for f in fs 
+                        if f.endswith(extensions)
+                        and any(inclusion in f for inclusion in in_samples)])
+        if ex_samples:
+            ([os.path.join(root, f) for f in fs 
+                        if f.endswith(extensions)
+                        and not any(exclusion in f for exclusion in ex_samples)])
+        files.extend(samples)
+    return files
 
 
 def generate_sample_filenames(sample: str, folders: dict, filenames: dict) -> dict:

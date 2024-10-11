@@ -15,8 +15,8 @@ align:
       bam_dir:
         bam
   
-  source_extension:
-    _R1.fastq.gz
+  source_extensions:
+    ['_R1.fastq.gz', '_R1.fq.gz']
 
   filenames:
     filename: |
@@ -66,8 +66,8 @@ variant_calling:
       vcf_dir:
         vcf
   
-  source_extension:
-    .bam
+  source_extensions:
+    ['.bam']
   
   filenames:
     filename: |
@@ -106,8 +106,8 @@ annotation:
       ann_dir:
         annotation
   
-  source_extension:
-    .vcf.gz
+  source_extensions:
+    ['.vcf.gz']
   
   filenames:
     filename: |
@@ -129,5 +129,5 @@ excel_postprocessing:
       excel_dir:
         excel
   
-  source_extension:
-    .tsv
+  source_extensions:
+    ['.tsv']
