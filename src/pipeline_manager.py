@@ -133,12 +133,14 @@ class PipelineManager:
         for module in self.modules:
             print(f'Запуск модуля: {module}')
 
+            result_dict['modules'][module] = {'status': True, 'samples':{}}
+
             # Запускаем модуль через ModuleRunner
-            result_dict = module_runner.run_module(module, result_dict['modules'])
+            result_dict['modules'][module] = module_runner.run_module(module, result_dict['modules'])
             
-            '''# Если хотя бы один модуль завершился с ошибкой, обновляем статус пайплайна
+            # Если хотя бы один модуль завершился с ошибкой, обновляем статус пайплайна
             if not result_dict['modules'][module]['status']:
-                result_dict['status'] = False'''
+                result_dict['status'] = False
 
         if result_dict['status']:
             print("Пайплайн завершён успешно.")

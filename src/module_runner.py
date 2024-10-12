@@ -43,8 +43,6 @@ class ModuleRunner:
         # Алиас
         c = self.cmd_data
 
-        module_result_dict[module] = {'status': True, 'samples':{}}
-
         # Создаём пути
         create_paths(list(self.folders.values()))
         # Инициализируем CommandExecutor
@@ -52,10 +50,10 @@ class ModuleRunner:
 
         # Выполняем команды для каждого образца
         print(f'Module: {BLUE}{module}{WHITE}')
-        module_result_dict[module] = exe.execute(c.keys(), module_result_dict[module])
+        module_result_dict = exe.execute(c.keys(), module_result_dict)
         
         # Если модуль завершился с ошибкой - передаём это наверх
-        if not module_result_dict[module]['status']:
+        if not module_result_dict['status']:
             module_result_dict['status'] = False
 
         return module_result_dict
