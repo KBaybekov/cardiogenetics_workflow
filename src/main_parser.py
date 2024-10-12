@@ -4,9 +4,12 @@ import importlib.util
 
 def parse_args():
     # Парсим первый аргумент с путём к конфигу
-    initial_args = parse_initial_args()
+    initial_args, remaining_args = parse_initial_args()
 
-    # Загружаем и выполняем второй парсер
+    # Добавляем config_path в оставшиеся аргументы
+    remaining_args.extend(['--config_path', initial_args.config_path])
+
+    # Загружаем и выполняем второй парсер, передаем остальные аргументы
     parse_cli_args = load_config_parser(initial_args.config_path)
     final_args = parse_cli_args()
 
@@ -18,8 +21,10 @@ def parse_initial_args():
     """
     parser = argparse.ArgumentParser(description="Initial argument parser")
     parser.add_argument('-cf', '--config_path', required=True, help="Путь для загрузки конфигурационных файлов")
-    args = parser.parse_args()
-    return args
+    
+    # Используем parse_known_args, чтобы собрать только --config_path и передать остальные аргументы позже
+    args, remaining_args = parser.parse_known_args()
+    return args, remaining_args
 
 def load_config_parser(config_path):
     """
