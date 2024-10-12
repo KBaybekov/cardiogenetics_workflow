@@ -168,7 +168,7 @@ def generate_cmd_data(args:dict, folders:dict,
         cmds = generate_commands(context=context, cmd_list=cmds_dict['sample_level'], commands=commands)
         
         # Добавляем сгенерированные команды в словарь для текущего образца
-        cmd_data[sample] = cmds
+        cmd_data[sample_filenames['basename']] = cmds
 
     # Создаём набор команд, которые выполнятся однократно после прогона по образцам
     cmd_data['after_batch'] = generate_commands(context=context, cmd_list=cmds_dict['after_batch'], commands=commands)
