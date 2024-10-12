@@ -49,11 +49,9 @@ class CommandExecutor:
             # Получаем команды для текущего образца
             cmds = self.cmd_data[sample]
 
-            sample_result = {
-                {'log':{}},
-            {'stdout':{}},
-            {'stderr':{}}
-            }
+            sample_result = {'log':{},
+                             'stdout':{},
+                             'stderr':{}}
 
             for title, cmd in cmds.items():
                 print(f'\t{title}:', end='')
