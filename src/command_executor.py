@@ -69,13 +69,13 @@ class CommandExecutor:
 
                 # Проверка успешности выполнения команды
                 if r['status'] == 'FAIL':
-                    print(f'FAIL, exit code: {r["exit_code"]}. ', end='')
+                    print(f' FAIL, exit code: {r["exit_code"]}. ', end='')
                     samples_result_dict[sample]['status'] = False
                 else:
-                    print(f'OK. ', end='')
+                    print(f' OK. ', end='')
                 samples_result_dict[sample]['programms'].update({title:r["exit_code"]})
 
-                print(f'Duration: {r["duration_sec"]}')
+                print(f'Duration: {r["duration_sec"]} seconds.')
             
              # Обновляем логи для текущего образца
             log_section.update({sample:sample_result['log']})
