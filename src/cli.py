@@ -6,7 +6,7 @@ def parse_cli_args():
     """
     Функция для обработки аргументов командной строки
     """
-    arg_descriptions = load_yaml('config/arg_descriptions.yaml')
+    arg_descriptions = load_yaml(f'{os.path.realpath(__file__)}/config/arg_descriptions.yaml')
         
     parser = argparse.ArgumentParser(
         description=arg_descriptions['prolog'], 
