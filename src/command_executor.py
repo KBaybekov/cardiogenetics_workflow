@@ -13,10 +13,9 @@ class CommandExecutor:
         """
         self.logs:dict
 
-        self.logs = {
-            {'log':load_yaml(file_path=log_space['log_data'])},
-            {'stdout':load_yaml(file_path=log_space['stdout_log'])},
-            {'stderr':load_yaml(file_path=log_space['stderr_log'])}}
+        self.logs = {'log':load_yaml(file_path=log_space['log_data']),
+                     'stdout':load_yaml(file_path=log_space['stdout_log']),
+                     'stderr':load_yaml(file_path=log_space['stderr_log'])}
         self.cmd_data = cmd_data
         self.log = log_space['log_data']
         self.stdout = log_space['stdout_log']
