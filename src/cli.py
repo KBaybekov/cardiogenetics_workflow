@@ -19,7 +19,7 @@ def parse_cli_args():
     parser.add_argument('-o', '--output_dir', required=True, help=arg_descriptions['output_dir'])
     parser.add_argument('-t', '--threads', default='', help=arg_descriptions['threads'])
     parser.add_argument('-r', '--ref_fasta', default='', help=arg_descriptions['ref_fasta'])
-    parser.add_argument('-mc', '--machine', required=True, choices=['medgen', 'local'], help=arg_descriptions['machine'])
+    parser.add_argument('-mc', '--machine', required=True, help=arg_descriptions['machine'])
     parser.add_argument('-sm', '--seq_mode', default='', choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])
     parser.add_argument('-m', '--modules', default='', help=arg_descriptions['modules'])
     parser.add_argument('-es', '--exclude_samples', default='', help=arg_descriptions['exclude_samples'])
