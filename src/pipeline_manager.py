@@ -100,12 +100,14 @@ class PipelineManager:
         executables = {}
         # Проходим по всем ключам в binaries
         for key, binary in binaries.items():
-            if key in envs.keys():
-                # Если ключ есть в envs, заменяем команду по шаблону env_command
-                executables.update({key: env_command_template.replace('env', envs[key]).replace('binary', binary)})
-            else:
-                # Если ключа нет в envs, оставляем значение из binaries
-                executables.update({key: binary})
+            #Прверяем, что словарь сред не пустой
+            if envs:
+                if key in envs:
+                    # Если ключ есть в envs, заменяем команду по шаблону env_command
+                    executables.update({key: env_command_template.replace('env', envs[key]).replace('binary', binary)})
+                else:
+                    # Если ключа нет в envs, оставляем значение из binaries
+                    executables.update({key: binary})
         # Устанавливаем атрибут executables в пространство экземпляра класса
         self.executables = executables
 
