@@ -286,7 +286,8 @@ def generate_commands(context:dict,
     :param commands: Словарь с инструкциями для создания команд.
     :return: Словарь с результатами выполнения инструкций для команд.
     """
-    
+    instruction:str
+
     # Словарь для хранения сгенерированных путей
     generated_cmds = {}
 
@@ -295,9 +296,12 @@ def generate_commands(context:dict,
         if key in cmd_list:
             # Используем eval() для вычисления выражений в строках
             try:
-                #print(instruction)
-                # Выполняем инструкцию, подставляя доступные переменные
-                generated_cmds[key] = eval(instruction, context)
+                # Если команда требует выполнения как Python-код (например, f-строки), используем eval(), подставляя доступные переменные
+                if instruction.startswith(("f'", 'f"')):
+                    generated_cmds[key] = eval(instruction, context)
+                else:
+                    # Если это обычная строка, просто сохраняем её без eval
+                    generated_cmds[key] = instruction
             except Exception as e:
                 print(f"Ошибка при обработке {key}: {e}")
                 print(generated_cmds[key])
