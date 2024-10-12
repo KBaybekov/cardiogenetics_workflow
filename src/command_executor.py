@@ -57,7 +57,7 @@ class CommandExecutor:
                 print(f'\t{title}:', end='')
 
                 # Выполнение команды
-                run_result = run_command(cmd=cmd, cmd_title=title)
+                run_result = run_command(cmd=cmd)
 
                 # Сохранение результатов
                 sample_result['log'][title] = run_result['log']
