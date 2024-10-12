@@ -43,7 +43,9 @@ class CommandExecutor:
         stderr_section = self.logs['stderr'][f'{self.module}_{self.module_start_time}']
         
         for sample in samples:
-            samples_result_dict[sample] = {'status':True, 'programms':{}}
+            samples_result_dict['samples'][sample] = {'status':True, 'programms':{}}
+            s = samples_result_dict['samples'][sample]
+            
             print(f'Sample: {sample}')
 
             # Получаем команды для текущего образца
@@ -70,10 +72,10 @@ class CommandExecutor:
                 # Проверка успешности выполнения команды
                 if r['status'] == 'FAIL':
                     print(f' FAIL, exit code: {r["exit_code"]}. ', end='')
-                    samples_result_dict[sample]['status'] = False
+                    s['status'] = False
                 else:
                     print(f' OK. ', end='')
-                samples_result_dict[sample]['programms'].update({title:r["exit_code"]})
+                s['programms'].update({title:r["exit_code"]})
 
                 print(f'Duration: {r["duration_sec"]} seconds.')
             

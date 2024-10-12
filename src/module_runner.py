@@ -42,8 +42,7 @@ class ModuleRunner:
         module_result_dict[module] = {'status': True, 'samples':{}}
 
         # Создаём пути
-        print(self.folders)
-        create_paths(self.folders)
+        create_paths(self.folders.values())
         # Инициализируем CommandExecutor
         exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
 
