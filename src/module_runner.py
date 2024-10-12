@@ -20,6 +20,7 @@ class ModuleRunner:
     def run_module(self, module:str, module_result_dict:dict) -> dict:
         # Цвета!
         BLUE = "\033[34m"
+        WHITE ="\033[37m"
 
         # Алиас
         x = self.pipeline_manager
@@ -51,7 +52,7 @@ class ModuleRunner:
         exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
 
         # Выполняем команды для каждого образца
-        print(f'Module: {BLUE}{module}')
+        print(f'Module: {BLUE}{module}{WHITE}')
         module_result_dict = exe.execute(c.keys(), module_result_dict[module])
         
         print(module_result_dict)
