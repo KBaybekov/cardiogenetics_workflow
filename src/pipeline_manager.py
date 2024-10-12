@@ -89,6 +89,7 @@ class PipelineManager:
         """
         machine_data:dict
         binaries:dict
+        envs:dict
         # Загружаем данные из шаблона
         machine_data = self.machines_template[self.machine]
         envs = machine_data.get('envs', {})
@@ -99,7 +100,7 @@ class PipelineManager:
         executables = {}
         # Проходим по всем ключам в binaries
         for key, binary in binaries.items():
-            if key in envs:
+            if key in envs.keys():
                 # Если ключ есть в envs, заменяем команду по шаблону env_command
                 executables.update({key: env_command_template.replace('env', envs[key]).replace('binary', binary)})
             else:
