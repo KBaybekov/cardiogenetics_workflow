@@ -109,6 +109,7 @@ class PipelineManager:
                     # Если ключа нет в envs, оставляем значение из binaries
                     executables.update({key: binary})
         # Устанавливаем атрибут executables в пространство экземпляра класса
+        print(executables)
         self.executables = executables
 
 
