@@ -297,6 +297,7 @@ def generate_commands(context:dict,
             try:
                 #print(instruction)
                 # Выполняем инструкцию, подставляя доступные переменные
+                print(generated_cmds[key])
                 generated_cmds[key] = eval(instruction, context)
             except Exception as e:
                 print(f"Ошибка при обработке {key}: {e}")
