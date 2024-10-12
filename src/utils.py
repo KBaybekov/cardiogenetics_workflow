@@ -179,7 +179,7 @@ def generate_sample_list(in_samples: list, ex_samples: list,
                          input_dir: str, extensions: tuple, subfolders:bool=False) -> list:
     """
     В зависимости от значения subfolders возвращает список файлов с указанным расширением только из указанной директории либо \
-    и из подпапок тоже.\n
+    и из подпапок тоже. При наличии включающих/исключающих паттернов фильтрует список образцов по ним.\n
     Выдаёт ошибку, если итоговый список пустой.
 
     :param in_samples: Список образцов, которые нужно включить.
@@ -189,64 +189,56 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     :param subdirs: поиск в подпапках.
     :return: Список путей к файлам.
     """
-    print(subfolders)
     if subfolders:
         # Ищем все файлы в дереве папок с указанными расширениями
-        samples = get_samples_in_dir_tree(dir=input_dir, in_samples=in_samples, ex_samples=ex_samples, extensions=extensions)
+        samples = get_samples_in_dir_tree(dir=input_dir, extensions=extensions)
     else:
         # Ищем все файлы в одной папке с указанными расширениями
-        samples = get_samples_in_dir(dir=input_dir, in_samples=in_samples, ex_samples=ex_samples, extensions=extensions)
+        samples = get_samples_in_dir(dir=input_dir, extensions=extensions)
+    
+    # Если список включающих образцов непустой, фильтруем по нему
+    if in_samples:
+        samples = [s for s in samples if 
+                 any(inclusion in os.path.basename(s) for inclusion in in_samples)]
+    # Если список исключающих образцов непустой, фильтруем по нему перед выдачей итогового списка образцов
+    if ex_samples:
+        samples = [s for s in samples if 
+                 not any(exclusion in os.path.basename(s) for exclusion in ex_samples)]
+    
     # Если итоговый список пустой, выдаём ошибку
     if not samples:
         raise ValueError("Итоговый список образцов пуст. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
     # Возвращаем полный путь к каждому файлу
     return samples
 
-def get_samples_in_dir(dir:str, in_samples: list, ex_samples: list,extensions:tuple):
+
+def get_samples_in_dir(dir:str, extensions:tuple):
     """
     Генерирует список файлов на основе включающих и исключающих образцов.
     Выдаёт ошибку, если итоговый список пустой.
 
-    :param in_samples: Список образцов, которые нужно включить.
-    :param ex_samples: Список образцов, которые нужно исключить.
     :param dir: Директория, где искать файлы.
     :param extensions: Расширения файлов для поиска.
     :return: Список путей к файлам.
     """
     # Ищем все файлы в директории с указанными расширениями
-    files = [s for s in os.listdir(dir) if s.endswith(extensions)]
-    # Если список включающих образцов непустой, фильтруем по нему
-    if len(in_samples) != 0:
-        files = [s for s in files if any(inclusion in s for inclusion in in_samples)]
-    # Если список исключающих образцов непустой, фильтруем по нему
-    if len(ex_samples) != 0:
-        files = [s for s in files if not any(exclusion in s for exclusion in ex_samples)]
-        files = [os.path.join(dir, s) for s in files]
+    files = [os.path.join(dir, s) for s in os.listdir(dir) if s.endswith(extensions)]
     return files
 
 
-def get_samples_in_dir_tree(dir:str, in_samples: list, ex_samples: list,extensions:tuple):
+def get_samples_in_dir_tree(dir:str, extensions:tuple):
     """
     Генерирует список файлов, проходя по дереву папок, корнем которого является dir.
     Выдаёт ошибку, если итоговый список пустой.
 
-    :param in_samples: Список образцов, которые нужно включить.
-    :param ex_samples: Список образцов, которые нужно исключить.
     :param dir: Директория, где искать файлы.
     :param extensions: Кортеж расширений файлов для поиска.
     :return: Список файлов с путями.
     """
     files = []
     for root, _ds, fs in os.walk(dir):
-        samples = []
-        if in_samples:
-            ([os.path.join(root, f) for f in fs 
-                        if f.endswith(extensions)
-                        and any(inclusion in f for inclusion in in_samples)])
-        if ex_samples:
-            ([os.path.join(root, f) for f in fs 
-                        if f.endswith(extensions)
-                        and not any(exclusion in f for exclusion in ex_samples)])
+        samples = [os.path.join(root, f) for f in fs 
+                    if f.endswith(extensions)]
         files.extend(samples)
     print(1, len(files))
     return files
