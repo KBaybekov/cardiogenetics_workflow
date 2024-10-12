@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-from src import cli, pipeline_manager
+from src import pipeline_manager, main_parser
 
 def main():
     # Парсинг аргументов командной строки
-    args = cli.parse_cli_args()
+    args = main_parser.parse_args()
     # Инициализация пайплайна
     pipeline = pipeline_manager.PipelineManager(args)
     #Запуск пайплайна

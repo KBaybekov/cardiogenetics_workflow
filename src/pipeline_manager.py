@@ -39,7 +39,7 @@ class PipelineManager:
 
         # Если не указан путь к конфигу, указываем путь к папке скрипта
         if self.config_path == '':
-            self.config_path = os.path.dirname(os.path.realpath(__file__)).replace('src', 'local_configs')
+            self.config_path = os.path.dirname(os.path.realpath(__file__)).replace('src', 'config')
         # Загружаем данные конфигов
         #Загружаем указанные конфиги
         templates = ['machines_template', 'modules_template', 'cmds_template']
