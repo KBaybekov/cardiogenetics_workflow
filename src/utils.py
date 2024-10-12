@@ -240,7 +240,7 @@ def get_samples_in_dir_tree(dir:str, extensions:tuple):
         samples = [os.path.join(root, f) for f in fs 
                     if f.endswith(extensions)]
         files.extend(samples)
-    print(files)
+    print(len(files))
     return files
 
 
