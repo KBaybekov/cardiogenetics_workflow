@@ -92,7 +92,6 @@ class PipelineManager:
         envs:dict
         # Загружаем данные из шаблона
         machine_data = self.machines_template[self.machine]
-        print(machine_data)
         envs = machine_data.get('envs', {})
         binaries = machine_data.get('binaries', {})
         env_command_template = machine_data.get('env_command', '')
@@ -106,11 +105,17 @@ class PipelineManager:
                 if key in envs:
                     # Если ключ есть в envs, заменяем команду по шаблону env_command
                     executables.update({key: env_command_template.replace('env', envs[key]).replace('binary', binary)})
+                    continue
                 else:
                     # Если ключа нет в envs, оставляем значение из binaries
                     executables.update({key: binary})
+                    continue
+            # Если словарь сред отсутствует, просто заполняем словарь команд бинарниками
+            else:
+                # Если ключа нет в envs, оставляем значение из binaries
+                executables.update({key: binary})
+            
         # Устанавливаем атрибут executables в пространство экземпляра класса
-        #print(executables)
         self.executables = executables
 
 
