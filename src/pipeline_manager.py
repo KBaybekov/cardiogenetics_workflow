@@ -136,7 +136,7 @@ class PipelineManager:
             result_dict['modules'][module] = {'status': True, 'samples':{}}
 
             # Запускаем модуль через ModuleRunner
-            result_dict['modules'][module] = module_runner.run_module(module, result_dict['modules'])
+            result_dict['modules'][module] = module_runner.run_module(module, result_dict['modules'][module])
             
             # Если хотя бы один модуль завершился с ошибкой, обновляем статус пайплайна
             if not result_dict['modules'][module]['status']:
