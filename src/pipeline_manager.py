@@ -67,8 +67,8 @@ class PipelineManager:
         create_paths([self.log_dir])
         
         # Устанавливаем пути к файлам логов
-        self.stdout_log = f'{self.log_dir}/stdout_log.txt'
-        self.stderr_log = f'{self.log_dir}/stderr_log.txt'
+        self.stdout_log = os.path.join(self.log_dir, 'stdout_log.txt')
+        self.stderr_log = os.path.join(self.log_dir, 'stderr_log.txt')
         self.log_data = os.path.join(self.log_dir, 'log.yaml')
         self.status_log = os.path.join(self.log_dir, 'status_log.yaml')
         

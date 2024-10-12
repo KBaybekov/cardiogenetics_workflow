@@ -75,7 +75,7 @@ class CommandExecutor:
                     print(f'OK. ', end='')
                 samples_result_dict[sample]['programms'].update({title:r["exit_code"]})
 
-                print(f'Duration: {r["duration"]}')
+                print(f'Duration: {r["duration_sec"]}')
             
              # Обновляем логи для текущего образца
             log_section.update({sample:sample_result['log']})

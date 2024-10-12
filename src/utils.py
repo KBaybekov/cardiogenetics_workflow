@@ -195,7 +195,7 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     else:
         # Ищем все файлы в одной папке с указанными расширениями
         samples = get_samples_in_dir(dir=input_dir, extensions=extensions)
-    
+    found_samples = len(samples)
     # Если список включающих образцов непустой, фильтруем по нему
     if in_samples:
         samples = [s for s in samples if 
@@ -204,7 +204,8 @@ def generate_sample_list(in_samples: list, ex_samples: list,
     if ex_samples:
         samples = [s for s in samples if 
                  not any(exclusion in os.path.basename(s) for exclusion in ex_samples)]
-    
+    filtered_samples = len(samples)
+    print(f'Найдено {found_samples} образцов, из них будут обрабатываться {filtered_samples}.')
     # Если итоговый список пустой, выдаём ошибку
     if not samples:
         raise ValueError("Итоговый список образцов пуст. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
@@ -240,7 +241,6 @@ def get_samples_in_dir_tree(dir:str, extensions:tuple):
         samples = [os.path.join(root, f) for f in fs 
                     if f.endswith(extensions)]
         files.extend(samples)
-    print(len(files))
     return files
 
 
