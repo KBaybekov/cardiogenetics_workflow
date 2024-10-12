@@ -36,6 +36,10 @@ class CommandExecutor:
         :param samples_result_dict: Данные о результатах выполнения пайплайна для каждого образца
         """
         cmds:dict
+        # Цвета!
+        RED = "\033[31m"
+        GREEN = "\033[32m"
+        YELLOW = "\033[33m"
         
         # Получаем раздел логов для текущего модуля
         log_section = self.logs['log'][f'{self.module}_{self.module_start_time}']
@@ -46,7 +50,7 @@ class CommandExecutor:
             samples_result_dict['samples'][sample] = {'status':True, 'programms':{}}
             s = samples_result_dict['samples'][sample]
             
-            print(f'Sample: {sample}')
+            print(f'\t{YELLOW}Sample: {sample}')
 
             # Получаем команды для текущего образца
             cmds = self.cmd_data[sample]
@@ -56,7 +60,7 @@ class CommandExecutor:
                              'stderr':{}}
 
             for title, cmd in cmds.items():
-                print(f'\t{title}:', end='')
+                print(f'\t\t{title}:', end='')
 
                 # Выполнение команды
                 run_result = run_command(cmd=cmd)
@@ -71,10 +75,10 @@ class CommandExecutor:
 
                 # Проверка успешности выполнения команды
                 if r['status'] == 'FAIL':
-                    print(f' FAIL, exit code: {r["exit_code"]}. ', end='')
+                    print(f'{RED} FAIL, exit code: {r["exit_code"]}. ', end='')
                     s['status'] = False
                 else:
-                    print(f' OK. ', end='')
+                    print(f'{GREEN} OK. ', end='')
                 s['programms'].update({title:r["exit_code"]})
 
                 print(f'Duration: {r["duration_sec"]} seconds.')

@@ -18,6 +18,9 @@ class ModuleRunner:
 
 
     def run_module(self, module:str, module_result_dict:dict) -> dict:
+        # Цвета!
+        BLUE = "\033[34m"
+
         # Алиас
         x = self.pipeline_manager
 
@@ -42,12 +45,13 @@ class ModuleRunner:
         module_result_dict[module] = {'status': True, 'samples':{}}
 
         # Создаём пути
-        create_paths(self.folders.values())
+        print(list(self.folders.values()))
+        create_paths(list(self.folders.values()))
         # Инициализируем CommandExecutor
         exe = CommandExecutor(cmd_data=c, log_space=x.log_space, module=module)
 
         # Выполняем команды для каждого образца
-        print(f'Module: {module}')
+        print(f'Module: {BLUE}{module}')
         module_result_dict = exe.execute(c.keys(), module_result_dict[module])
         
         print(module_result_dict)
