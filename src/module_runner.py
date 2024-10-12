@@ -50,6 +50,7 @@ class ModuleRunner:
         print(f'Module: {module}')
         module_result_dict = exe.execute(c.keys(), module_result_dict[module])
         
+        print(module_result_dict)
         if not module_result_dict[module]['status']:
             module_result_dict['status'] = False
 
