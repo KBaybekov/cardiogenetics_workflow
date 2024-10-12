@@ -87,4 +87,4 @@ class CommandExecutor:
             update_yaml(file_path=self.stdout, new_data=self.logs['stdout'])
             update_yaml(file_path=self.stderr, new_data=self.logs['stderr'])
 
-            return samples_result_dict
+        return samples_result_dict
