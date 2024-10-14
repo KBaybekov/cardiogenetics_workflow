@@ -47,7 +47,7 @@ def parse_cli_args():
         args.modules = args.modules.split(',')
 
     # Загрузка значений по умолчанию
-    default_values = load_yaml(f"default_values.yaml",
+    default_values = load_yaml(f"{configs}/default_values.yaml",
                                critical=True)
 
     # Присваивание значений по умолчанию в случае отсутствия аргумента в CMD
