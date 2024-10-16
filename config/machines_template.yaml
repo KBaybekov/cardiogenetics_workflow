@@ -5,7 +5,6 @@ medgen:
     trim_galore: "genetico"
     multiqc: "base"
     qualimap: "qualimap"
-    samtools: "genetico"
     
   binaries:
     abra2: "-Xmx48G -jar /root/miniforge3/envs/genetico/share/abra2-2.24-1/abra2.jar"
