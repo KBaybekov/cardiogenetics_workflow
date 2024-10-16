@@ -18,6 +18,7 @@ def parse_cli_args():
     parser.add_argument('-i', '--input_dir', required=True, type=str, help=arg_descriptions['input_dir'])
     parser.add_argument('-o', '--output_dir', required=True, type=str, help=arg_descriptions['output_dir'])
     parser.add_argument('-t', '--threads', default='', type=str, help=arg_descriptions['threads'])
+    parser.add_argument('-tr', '--trimmomatic_opts', default='', type=str, help=arg_descriptions['trimmomatic_opts'])
     parser.add_argument('-r', '--ref_fasta', default='', type=str, help=arg_descriptions['ref_fasta'])
     parser.add_argument('-mc', '--machine', required=True, type=str, help=arg_descriptions['machine'])
     parser.add_argument('-sm', '--seq_mode', default='', type=str, choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])

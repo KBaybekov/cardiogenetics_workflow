@@ -1,11 +1,13 @@
-threads: >-
-  16
+cravat_annotators: >-
+  clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad gnomad4 spliceai cardioboost clinpred
+modules: ['align','variant_calling','annotation','excel_postprocessing']
 ref_fasta: >-
   /mnt/d/WES/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.111.fa
-modules: ['align','variant_calling','annotation','excel_postprocessing']
+threads: >-
+  16
+trimmomatic_opts: >-
+  SLIDINGWINDOW:4:18 HEADCROP:10 MINLEN:35
 variant_frequency_threshold: >-
   0.15
 variant_filters: >-
   "QUAL>20 && DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))"
-cravat_annotators: >-
-  clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad gnomad4 spliceai cardioboost clinpred

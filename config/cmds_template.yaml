@@ -11,7 +11,7 @@ abra2_lc_var: |
 trim_galore: |
   f'{programms["trim_galore"]} --length 35 --output_dir {folders["tmp_dir"]} --cores {args["threads"]} --paired {" ".join(filenames["raw_fastqs"])}'
 trimmomatic: |
-  f'java -jar {programms["trimmomatic"]} PE -threads {args["threads"]} {" ".join(filenames["trim_galore_fastqs"])} -baseout {folders["tmp_dir"]}{filenames["basename"]}.fq SLIDINGWINDOW:4:20 HEADCROP:10 MINLEN:35'
+  f'java -jar {programms["trimmomatic"]} PE -threads {args["threads"]} {" ".join(filenames["trim_galore_fastqs"])} -baseout {folders["tmp_dir"]}{filenames["basename"]}.fq {args["trimmomatic_opts"]}'
 aligning: |
   f'bwa mem -t {args["threads"]} -M {args["ref_fasta"]} {filenames["trimmomatic_fastqs"]} | {programms["samblaster"]} -M -e -r -q --addMateTags | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}'
 samtools_sort: |
