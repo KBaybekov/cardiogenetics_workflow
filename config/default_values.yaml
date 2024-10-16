@@ -1,5 +1,8 @@
 cravat_annotators: >-
   clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad gnomad4 spliceai cardioboost clinpred
+freebayes_filters: >-
+  --standard-filters --report-genotype-likelihood-max --min-coverage 8 --min-alternate-qsum 40 
+  --min-alternate-count 2 --min-alternate-fraction 0.1
 modules: ['align','variant_calling','annotation','excel_postprocessing']
 ref_fasta: >-
   /mnt/d/WES/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.111.fa

@@ -26,6 +26,7 @@ def parse_cli_args():
     parser.add_argument('-es', '--exclude_samples', default='', type=str, help=arg_descriptions['exclude_samples'])
     parser.add_argument('-is', '--include_samples', default='', type=str, help=arg_descriptions['include_samples'])
     parser.add_argument('-f', '--filter_common_variants', default='', type=str, help=arg_descriptions['filter_common_variants'])
+    parser.add_argument('-fr', '--freebayes_filters', default='', type=str, help=arg_descriptions['freebayes_filters'])
     parser.add_argument('-vf', '--variant_filters', default='', type=str, help=arg_descriptions['variant_filters'])
     parser.add_argument('-frt', '--variant_frequency_threshold', default='', type=str, help=arg_descriptions['variant_frequency_threshold'])
     parser.add_argument('-dm', '--demo', default='', type=str, help=arg_descriptions['demo'])
