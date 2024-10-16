@@ -65,5 +65,4 @@ def parse_cli_args():
     # Также установим переменные окружения
     os.environ['LC_ALL'] = 'en_US.UTF-8'
     os.environ['DISPLAY'] = ':0'
-    os.system('echo $LC_ALL')
     return args

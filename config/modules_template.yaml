@@ -57,6 +57,8 @@ align:
 variant_calling:
   folders:
     input_dir:
+      bam_dir:
+        bam
     output_dir:
       log_dir:
         Log
@@ -103,6 +105,8 @@ variant_calling:
 annotation:
   folders:
     input_dir:
+      vcf_dir:
+        vcf
     output_dir:
       log_dir:
         Log
@@ -134,6 +138,8 @@ annotation:
 excel_postprocessing:
   folders:
     input_dir:
+      ann_dir:
+        annotation
     output_dir:
       log_dir:
         Log
