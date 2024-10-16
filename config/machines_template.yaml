@@ -2,6 +2,7 @@ medgen:
   envs:
     cravat: "cravat"
     freebayes: "genetico"
+    trim_galore: "genetico"
     multiqc: "base"
     qualimap: "qualimap"
     samtools: "genetico"
