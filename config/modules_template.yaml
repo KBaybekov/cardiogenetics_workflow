@@ -55,6 +55,8 @@ align:
 
 
 variant_calling:
+  subfolder:
+    bam
   folders:
     input_dir:
       log_dir:
