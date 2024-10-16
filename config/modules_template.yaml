@@ -134,7 +134,7 @@ annotation:
         annotation
   
   source_extensions:
-    ['.vcf.gz']
+    ['.vcf','.vcf.gz']
   
   filenames:
     filename: |
