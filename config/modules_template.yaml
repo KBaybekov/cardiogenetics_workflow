@@ -38,8 +38,6 @@ align:
 
   commands:
     before_batch:
-      - qualimap_headless_var
-      - abra2_lc_var
     sample_level:
       - trim_galore
       - trimmomatic

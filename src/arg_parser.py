@@ -62,4 +62,7 @@ def parse_cli_args():
     # Преобразуем Namespace в словарь
     args = vars(args)  # Преобразуем объект Namespace в словарь
 
+    # Также установим переменные окружения
+    os.environ['LC_ALL'] = 'en_US.UTF-8'
+    os.environ['DISPLAY'] = ':0'
     return args
