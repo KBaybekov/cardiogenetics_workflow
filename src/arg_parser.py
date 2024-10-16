@@ -1,6 +1,6 @@
 import argparse
 import os
-from src.utils import load_yaml  # Импортируем функцию для загрузки YAML
+from src.utils import load_yaml
 
 def parse_cli_args():
     """
@@ -56,7 +56,7 @@ def parse_cli_args():
         if getattr(args, arg) == '':
             setattr(args, arg, default_value)
     #Добавим кавычки в variant_filters
-    args['variant_filters'] = f'"{args["variant_filters"]}"'
+    #args['variant_filters'] = f'"{args["variant_filters"]}"'
 
     # Преобразуем Namespace в словарь
     args = vars(args)  # Преобразуем объект Namespace в словарь
