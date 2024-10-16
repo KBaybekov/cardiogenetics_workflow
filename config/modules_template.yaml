@@ -85,8 +85,12 @@ variant_calling:
       filenames['vcf'].replace('.vcf', '_freebayes.vcf')
     vcf_deepvariant: |
       filenames['vcf'].replace('.vcf', '_deepvariant.vcf.gz')
+    tmp_vcf_freebayes: |
+      f"{folders['tmp_dir']}{filenames['basename']}_freebayes.vcf"
+    tmp_vcf_deepvariant: |
+      f"{folders['tmp_dir']}{filenames['basename']}_deepvariant.vcf"
     gvcf_deepvariant: |
-      filenames['vcf_deepvariant'].replace('vcf','gvcf')}
+      filenames['vcf_deepvariant'].replace('vcf','gvcf')
 
   commands:
     before_batch:
