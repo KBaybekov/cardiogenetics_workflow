@@ -40,7 +40,7 @@ merged_vcf_actions: |
 
 #annotation
 cravat: |
-  f'{programms["cravat"]} run {filenames["merged_vcf"]} -l hg38 -t tsv -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["cravat"]}'
+  f'{programms["cravat"]} run {filenames["vcf"]} -l hg38 -t tsv -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["cravat"]}'
 
 #excel_postprocessing
 excel_postprocessing: |

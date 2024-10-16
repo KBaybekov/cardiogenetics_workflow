@@ -142,7 +142,7 @@ annotation:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     vcf: |
-      f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
+      f"{folders['vcf_dir']}{filenames['basename']}.vcf"
     cravat: |
       f"{folders['ann_dir']}{filenames['basename']}"
   
