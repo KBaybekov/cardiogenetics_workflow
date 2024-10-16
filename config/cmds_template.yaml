@@ -36,7 +36,7 @@ dv_bgzip: |
 vcf_intersection: |
   f'bcftools isec  -p {folders["tmp_dir"]}isec/ {filenames["vcf_deepvariant"]}.gz {filenames["vcf_freebayes"]}.gz'
 merged_vcf_actions: |
-  f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["merged_vcf"]}'
+  f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["vcf"]}'
 
 #annotation
 cravat: |
