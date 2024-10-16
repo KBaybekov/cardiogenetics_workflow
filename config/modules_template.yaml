@@ -53,10 +53,11 @@ align:
       - multiqc
       - remove_tmp_folder
 
+  result_dir: |
+    bam
+
 
 variant_calling:
-  subfolder:
-    bam
   folders:
     input_dir:
       log_dir:
@@ -106,6 +107,9 @@ variant_calling:
       - merged_vcf_actions
       - remove_tmp_files
     after_batch:
+  
+  result_dir: |
+    vcf
 
 annotation:
   folders:
@@ -138,6 +142,9 @@ annotation:
     sample_level:
       - cravat
     after_batch:
+
+  result_dir: |
+    annotation
 
 
 excel_postprocessing:
