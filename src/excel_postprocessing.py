@@ -54,10 +54,10 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
 
     dfs = reform_data(data_df, var_threshold, output_file)
 
-    for df in dfs:
+    for filepath, df in dfs.items():
         wb = add_header_sheet(design_data_df(df), header_df)
         # Сохранение файла
-        wb.save(output_file)
+        wb.save(filepath)
 
 
 def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str) -> dict:
@@ -82,7 +82,7 @@ def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str) -> d
     # AF ставим всё же левее всех остальных
     data_df.insert(alt_base_idx + 1, 'extra_vcf_info.AF', data_df.pop('extra_vcf_info.AF'))
     clinical_data_df = data_df[data_df['gnomad4.af'] <= var_threshold]
-    return {data_df:output_file, clinical_data_df:output_file.replace('.xlsx', '_clinical.xlsx')}
+    return {output_file:data_df, output_file.replace('.xlsx', '_clinical.xlsx'):clinical_data_df}
 
 def add_varsome_column(data_df):
     """
@@ -191,7 +191,7 @@ def main():
     """
     Основная функция. Читает входной TSV файл, преобразует его и сохраняет в Excel.
     """
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
         print("Использование: script.py in.tsv out.xlsx")
         sys.exit(1)
 
