@@ -26,7 +26,7 @@ align:
     raw_fastqs: |
       [sample, sample.replace('_R1', '_R2')]
     trim_galore_fastqs: |
-      [s.replace(folders['input'], folders['tmp_dir']).replace('.fastq.gz', f"_val_{(filenames['raw_fastqs'].index(s)+1)}.fq.gz") for s in filenames['raw_fastqs']]
+      [s.replace(folders['input_dir'], folders['tmp_dir']).replace('.fastq.gz', f"_val_{(filenames['raw_fastqs'].index(s)+1)}.fq.gz") for s in filenames['raw_fastqs']]
     trimmomatic_fastqs: |
       ' '.join([f"{folders['tmp_dir']}{filenames['basename']}_{i}P.fq" for i in [1,2]])
     abra_bam: |
