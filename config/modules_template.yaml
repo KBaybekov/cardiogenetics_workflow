@@ -57,15 +57,14 @@ align:
 variant_calling:
   folders:
     input_dir:
-      bam_dir:
-        bam
-    output_dir:
       log_dir:
         Log
       tmp_dir:
         tmp
       vcf_dir:
         vcf
+    output_dir:
+      
   
   source_extensions:
     ['.bam']
@@ -76,7 +75,7 @@ variant_calling:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     abra_bam: |
-      f"{folders['bam_dir']}{filenames['basename']}_abra2.bam"
+      f"{folders['input_dir']}/bam/{filenames['basename']}_abra2.bam"
     vcf: |
       f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
     unzipped_vcf: |
