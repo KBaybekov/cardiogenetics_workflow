@@ -1,6 +1,7 @@
 medgen:
   envs:
     cravat: "cravat"
+    fastqc: "genetico"
     freebayes: "genetico"
     trim_galore: "genetico"
     multiqc: "base"

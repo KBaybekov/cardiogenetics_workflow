@@ -1,11 +1,6 @@
 #REPLACE feature-file WITH VAR IN QUALIMAP
 
 #before batch
-#align
-qualimap_headless_var: |
-  export DISPLAY=:0
-abra2_lc_var: |
-  export LC_ALL=en_US.UTF-8
 
 #align
 trim_galore: |
