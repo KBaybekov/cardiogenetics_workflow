@@ -3,6 +3,8 @@ cravat_annotators: >-
 modules: ['align','variant_calling','annotation','excel_postprocessing']
 ref_fasta: >-
   /mnt/d/WES/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.111.fa
+seq_mode: >-
+  WES
 threads: >-
   16
 trimmomatic_opts: >-

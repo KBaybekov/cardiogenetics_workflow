@@ -1,5 +1,6 @@
 medgen:
   envs:
+    bcftools: "genetico"
     cravat: "cravat"
     fastqc: "genetico"
     freebayes: "genetico"
@@ -9,6 +10,7 @@ medgen:
     
   binaries:
     abra2: "-Xmx48G -jar /root/miniforge3/envs/genetico/share/abra2-2.24-1/abra2.jar"
+    bcftools: "bcftools"
     cravat: "oc"
     fastqc: "fastqc"
     freebayes: "freebayes"
