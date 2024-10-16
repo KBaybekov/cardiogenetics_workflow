@@ -77,26 +77,30 @@ variant_calling:
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     abra_bam: |
       f"{folders['bam_dir']}{filenames['basename']}_abra2.bam"
-    vcf_freebayes: |
-      f"{folders['vcf_dir']}{filenames['basename']}_freebayes.vcf"
-    vcf_deepvariant: |
-      f"{folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz"
-    gvcf_deepvariant: |
-      filenames['vcf_deepvariant'].replace('vcf','gvcf')}
     vcf: |
+      f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
+    unzipped_vcf: |
+      filenames['vcf'].removesuffix('.gz')
+    vcf_freebayes: |
+      filenames['vcf'].replace('.vcf', '_freebayes.vcf')
+    vcf_deepvariant: |
+      filenames['vcf'].replace('.vcf', '_deepvariant.vcf.gz')
+    gvcf_deepvariant: |
       filenames['vcf_deepvariant'].replace('vcf','gvcf')}
 
   commands:
-    - freebayes
-    - deepvariant
-    - fb_vcf_filtering
-    - fb_bgzip
-    - dv_vcf_filtering
-    - dv_bgzip
-    - vcf_intersection
-    - merged_vcf_actions
-    - remove_tmp_files
-
+    before_batch:
+    sample_level:
+      - freebayes
+      - deepvariant
+      - fb_vcf_filtering
+      - fb_bgzip
+      - dv_vcf_filtering
+      - dv_bgzip
+      - vcf_intersection
+      - merged_vcf_actions
+      - remove_tmp_files
+    after_batch:
 
 annotation:
   folders:
@@ -117,8 +121,16 @@ annotation:
       os.path.basename(sample).split('.')[0]
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
-    annovar_vcf: |
-      f"{folders['ann_dir']}{filenames['basename']}_annovar"
+    vcf: |
+      f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
+    cravat: |
+      f"{folders['ann_dir']}{filenames['basename']}"
+  
+  commands:
+    before_batch:
+    sample_level:
+      - cravat
+    after_batch:
 
 
 excel_postprocessing:
