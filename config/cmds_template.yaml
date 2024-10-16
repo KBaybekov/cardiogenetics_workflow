@@ -31,38 +31,35 @@ freebayes: |
 deepvariant: |
   f'sudo docker run -v {folders["bam_dir"]}:/input -v {folders["vcf_dir"]}:/output -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/ google/deepvariant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads=/input/{os.path.basename(filenames["abra_bam"])} --output_vcf=/tmp/{os.path.basename(filenames["tmp_vcf_deepvariant"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_deepvariant"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
 fb_vcf_filtering: |
-  f'bcftools filter --include "QUAL>20 && DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))" --threads {args["threads"]} {filenames["tmp_vcf_freebayes"]} > {filenames["vcf_freebayes"]}'
+  f'bcftools filter --include {args["variant_filters"]} --threads {args["threads"]} {filenames["tmp_vcf_freebayes"]} > {filenames["vcf_freebayes"]}'
 fb_bgzip: |
   f'bgzip -@ {args["threads"]} {filenames["vcf_freebayes"]} && tabix -p vcf {filenames["vcf_freebayes"]}.gz'
 dv_vcf_filtering: |
-  f'bcftools filter --include "QUAL>20 && DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))" --threads {args["threads"]} {filenames["tmp_vcf_deepvariant"]} > {filenames["vcf_deepvariant"]}'
+  f'bcftools filter --include {args["variant_filters"]} --threads {args["threads"]} {filenames["tmp_vcf_deepvariant"]} > {filenames["vcf_deepvariant"]}'
 dv_bgzip: |
   f'bgzip -@ {args["threads"]} {filenames["vcf_deepvariant"]} && tabix -p vcf {filenames["vcf_deepvariant"]}.gz'
 vcf_intersection: |
   f'bcftools isec  -p {folders["tmp_dir"]}isec/ {filenames["vcf_deepvariant"]}.gz {filenames["vcf_freebayes"]}.gz'
 merged_vcf_actions: |
   f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["merged_vcf"]}'
+clinical_vcf: |
+  f'bcftools filter --include {args["variant_filters"]} --threads {args["threads"]} {filenames["tmp_vcf_freebayes"]} > {filenames["vcf_freebayes"]}'
 
 #annotation
-annovar_freebayes: |
-  f'{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcfinput {folders["vcf_dir"]}{filenames["basename"]}_freebayes.vcf {folders["annovar_dir"]}humandb/ -buildver hg38 -out {folders["annotation_dir"]}{filenames["basename"]}_freebayes -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish'
-cravat_freebayes: |
+cravat: |
   f'{programms["cravat"]} run {folders["annotation_dir"]}{filenames["basename"]}_freebayes.hg38_multianno.vcf -l hg38 -t excel -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["basename"]}_cravat_freebayes'
-annovar_deepvariant: |
-  f'{annovar_dir}table_annovar.pl -thread {args["threads"]} -vcfinput {folders["vcf_dir"]}{filenames["basename"]}_deepvariant.vcf {folders["annovar_dir"]}humandb/ -buildver hg38 -out {folders["annotation_dir"]}{filenames["basename"]}_deepvariant -protocol gnomad41_exome,gnomad41_genome -operation f,f -nastring . -polish'
-cravat_deepvariant: |
-  f'{programms["cravat"]} run {folders["annotation_dir"]}{filenames["basename"]}_deepvariant.hg38_multianno.vcf -l hg38 -t excel -a {args["cravat_annotators"]} -d {folders["annotation_dir"]} --mp {args["threads"]} -n {filenames["basename"]}_cravat_deepvariant'
 
 #excel_postprocessing
+excel_postprocessing: |
+  f'{args["project_path"]}/src/excel_postprocessing.py {filenames["cravat_tsv"]} {filenames["excel"]} {args["variant_frequency_threshold"]}'
 
 # removing tmp files
 remove_tmp_files: |
   f'rm -rf {folders["tmp_dir"]}{filenames["basename"]}*'
 
-
 #after batch
 # removing tmp folder
-remove_tmp_files: |
+remove_tmp_folder: |
   f'rm -rf {folders["tmp_dir"]}'
 #align
 fastqc_raw: |

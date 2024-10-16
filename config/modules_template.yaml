@@ -1,7 +1,7 @@
 align:
   folders:
-    input:
-    output:
+    input_dir:
+    output_dir:
       log_dir:
         Log
       tmp_dir:
@@ -53,12 +53,13 @@ align:
     after_batch:
       - fastqc_raw
       - multiqc
+      - remove_tmp_folder
 
 
 variant_calling:
   folders:
-    input:
-    output:
+    input_dir:
+    output_dir:
       log_dir:
         Log
       tmp_dir:
@@ -82,6 +83,8 @@ variant_calling:
       f"{folders['vcf_dir']}{filenames['basename']}_deepvariant.vcf.gz"
     gvcf_deepvariant: |
       filenames['vcf_deepvariant'].replace('vcf','gvcf')}
+    vcf: |
+      filenames['vcf_deepvariant'].replace('vcf','gvcf')}
 
   commands:
     - freebayes
@@ -97,8 +100,8 @@ variant_calling:
 
 annotation:
   folders:
-    input:
-    output:
+    input_dir:
+    output_dir:
       log_dir:
         Log
       tmp_dir:
@@ -120,8 +123,8 @@ annotation:
 
 excel_postprocessing:
   folders:
-    input:
-    output:
+    input_dir:
+    output_dir:
       log_dir:
         Log
       tmp_dir:
@@ -131,3 +134,19 @@ excel_postprocessing:
   
   source_extensions:
     ['.tsv']
+
+  filenames:
+    filename: |
+      os.path.basename(sample).split('.')[0]
+    basename: |
+      f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
+    cravat_tsv: |
+      f"{folders['ann_dir']}{filenames['basename']}_cravat"
+    excel: |
+      f"{folders['ann_dir']}{filenames['basename']}_cravat"
+  
+  commands:
+    before_batch:
+    sample_level:
+      - excel_postprocessing
+    after_batch:

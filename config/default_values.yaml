@@ -3,4 +3,5 @@ threads: '16'
 ref_fasta: '/path/to/reference.fasta'
 modules: ['align','variant_calling','annotation','excel_postprocessing']
 variant_frequency_threshold: '0.15'
-cravat_annotators: 'clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad spliceai cardioboost clinpred'
+variant_filters: 'QUAL>20 && DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))'
+cravat_annotators: 'clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad gnomad4 spliceai cardioboost clinpred'

@@ -15,21 +15,22 @@ def parse_cli_args():
     )
     
     # Основные аргументы с описаниями из YAML
-    parser.add_argument('-i', '--input_dir', required=True, help=arg_descriptions['input_dir'])
-    parser.add_argument('-o', '--output_dir', required=True, help=arg_descriptions['output_dir'])
-    parser.add_argument('-t', '--threads', default='', help=arg_descriptions['threads'])
-    parser.add_argument('-r', '--ref_fasta', default='', help=arg_descriptions['ref_fasta'])
-    parser.add_argument('-mc', '--machine', required=True, help=arg_descriptions['machine'])
-    parser.add_argument('-sm', '--seq_mode', default='', choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])
-    parser.add_argument('-m', '--modules', default='', help=arg_descriptions['modules'])
-    parser.add_argument('-es', '--exclude_samples', default='', help=arg_descriptions['exclude_samples'])
-    parser.add_argument('-is', '--include_samples', default='', help=arg_descriptions['include_samples'])
-    parser.add_argument('-f', '--filter_common_variants', default='', help=arg_descriptions['filter_common_variants'])
-    parser.add_argument('-frt', '--variant_frequency_threshold', default='', help=arg_descriptions['variant_frequency_threshold'])
-    parser.add_argument('-dm', '--demo', default='', help=arg_descriptions['demo'])
-    parser.add_argument('-cf', '--project_path', default='', help=arg_descriptions['project_path'])
-    parser.add_argument('-cr', '--cravat_annotators', default='', help=arg_descriptions['cravat_annotators'])
-    parser.add_argument('-s', '--subfolders', default=False, help=arg_descriptions['subfolders'])
+    parser.add_argument('-i', '--input_dir', required=True, type=str, help=arg_descriptions['input_dir'])
+    parser.add_argument('-o', '--output_dir', required=True, type=str, help=arg_descriptions['output_dir'])
+    parser.add_argument('-t', '--threads', default='', type=str, help=arg_descriptions['threads'])
+    parser.add_argument('-r', '--ref_fasta', default='', type=str, help=arg_descriptions['ref_fasta'])
+    parser.add_argument('-mc', '--machine', required=True, type=str, help=arg_descriptions['machine'])
+    parser.add_argument('-sm', '--seq_mode', default='', type=str, choices=['WES', 'WGS'], help=arg_descriptions['sequence_mode'])
+    parser.add_argument('-m', '--modules', default='', type=str, help=arg_descriptions['modules'])
+    parser.add_argument('-es', '--exclude_samples', default='', type=str, help=arg_descriptions['exclude_samples'])
+    parser.add_argument('-is', '--include_samples', default='', type=str, help=arg_descriptions['include_samples'])
+    parser.add_argument('-f', '--filter_common_variants', default='', type=str, help=arg_descriptions['filter_common_variants'])
+    parser.add_argument('-vf', '--variant_filters', default='', type=str, help=arg_descriptions['variant_filters'])
+    parser.add_argument('-frt', '--variant_frequency_threshold', default='', type=str, help=arg_descriptions['variant_frequency_threshold'])
+    parser.add_argument('-dm', '--demo', default='', type=str, help=arg_descriptions['demo'])
+    parser.add_argument('-cf', '--project_path', default='', type=str, help=arg_descriptions['project_path'])
+    parser.add_argument('-cr', '--cravat_annotators', default='', type=str, help=arg_descriptions['cravat_annotators'])
+    parser.add_argument('-s', '--subfolders', default=False, type=str, help=arg_descriptions['subfolders'])
 
     # Парсим аргументы
     args = parser.parse_args()
@@ -54,7 +55,9 @@ def parse_cli_args():
     for arg, default_value in default_values.items():
         if getattr(args, arg) == '':
             setattr(args, arg, default_value)
-    
+    #Добавим кавычки в variant_filters
+    args['variant_filters'] = f'"{args['variant_filters']}"'
+
     # Преобразуем Namespace в словарь
     args = vars(args)  # Преобразуем объект Namespace в словарь
 
