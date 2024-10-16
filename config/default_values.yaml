@@ -1,11 +1,11 @@
-threads: |
+threads: >-
   16
-ref_fasta: |
-  /mnt/d/WES/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.11
+ref_fasta: >-
+  /mnt/d/WES/reference/Ensembl_hg38/Homo_sapiens.GRCh38.dna.primary_assembly.11.fa
 modules: ['align','variant_calling','annotation','excel_postprocessing']
-variant_frequency_threshold: |
+variant_frequency_threshold: >-
   0.15
-variant_filters: |
+variant_filters: >-
   "QUAL>20 && DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))"
-cravat_annotators: |
+cravat_annotators: >-
   clinvar clinvar_acmg omim ncbigene hpo hg19 gnomad gnomad4 spliceai cardioboost clinpred
