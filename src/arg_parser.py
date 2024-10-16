@@ -28,7 +28,7 @@ def parse_cli_args():
     parser.add_argument('-vf', '--variant_filters', default='', type=str, help=arg_descriptions['variant_filters'])
     parser.add_argument('-frt', '--variant_frequency_threshold', default='', type=str, help=arg_descriptions['variant_frequency_threshold'])
     parser.add_argument('-dm', '--demo', default='', type=str, help=arg_descriptions['demo'])
-    parser.add_argument('-cf', '--project_path', default='', type=str, help=arg_descriptions['project_path'])
+    parser.add_argument('-pp', '--project_path', default='', type=str, help=arg_descriptions['project_path'])
     parser.add_argument('-cr', '--cravat_annotators', default='', type=str, help=arg_descriptions['cravat_annotators'])
     parser.add_argument('-s', '--subfolders', default=False, type=str, help=arg_descriptions['subfolders'])
 
