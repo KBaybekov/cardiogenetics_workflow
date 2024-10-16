@@ -1,4 +1,8 @@
+sequence: ['align', 'variant_calling', 'annotation', 'excel_postprocessing']
+
 align:
+  module_before:
+    none
   folders:
     input_dir:
     output_dir:
@@ -58,6 +62,8 @@ align:
 
 
 variant_calling:
+  module_before:
+    align
   folders:
     input_dir:
       log_dir:
@@ -112,6 +118,8 @@ variant_calling:
     vcf
 
 annotation:
+  module_before:
+    variant_calling
   folders:
     input_dir:
       vcf_dir:
@@ -148,6 +156,8 @@ annotation:
 
 
 excel_postprocessing:
+  module_before:
+    annotation
   folders:
     input_dir:
       ann_dir:
