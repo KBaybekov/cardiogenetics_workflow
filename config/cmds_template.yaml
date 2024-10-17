@@ -22,7 +22,7 @@ qualimap:
 
 #variant_calling
 freebayes: |
-  f'{programms["freebayes"]} <(fasta_generate_regions.py {args["ref_fasta"]}.fai 100000) {args["threads"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["tmp_vcf_freebayes"]}'
+  f'{programms["freebayes"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["tmp_vcf_freebayes"]}'
 deepvariant: |
   f'sudo docker run -v {folders["input_dir"]}:/input -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/ google/deepvariant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads=/input/{os.path.basename(filenames["abra_bam"])} --output_vcf=/tmp/{os.path.basename(filenames["tmp_vcf_deepvariant"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_deepvariant"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
 fb_vcf_filtering: |

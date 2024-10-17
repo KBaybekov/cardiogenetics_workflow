@@ -13,7 +13,7 @@ medgen:
     bcftools: "bcftools"
     cravat: "oc"
     fastqc: "fastqc"
-    freebayes: "freebayes-parallel"
+    freebayes: "freebayes"
     multiqc: "multiqc"
     qualimap: "qualimap"
     samblaster: "samblaster"
