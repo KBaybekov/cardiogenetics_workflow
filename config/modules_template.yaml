@@ -1,3 +1,4 @@
+#TRIMMOMATIC IS OFF!
 sequence: ['align', 'variant_calling', 'annotation', 'excel_postprocessing']
 
 align:
@@ -7,7 +8,7 @@ align:
     input_dir:
     output_dir:
       log_dir:
-        Log
+        Logs
       tmp_dir:
         tmp
       qc_dir:
@@ -44,7 +45,6 @@ align:
     before_batch:
     sample_level:
       - trim_galore
-      - trimmomatic
       - aligning
       - samtools_sort
       - samtools_index
@@ -67,7 +67,7 @@ variant_calling:
   folders:
     input_dir:
       log_dir:
-        Log
+        Logs
       tmp_dir:
         tmp
       vcf_dir:
@@ -127,7 +127,7 @@ annotation:
         vcf
     output_dir:
       log_dir:
-        Log
+        Logs
       tmp_dir:
         tmp
       ann_dir:
@@ -163,7 +163,7 @@ excel_postprocessing:
         annotation
     output_dir:
       log_dir:
-        Log
+        Logs
       tmp_dir:
         tmp
       excel_dir:
