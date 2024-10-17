@@ -82,7 +82,7 @@ def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str) -> d
             data_df.insert(alt_base_idx + 1, col, data_df.pop(col))
     # AF ставим всё же левее всех остальных
     data_df.insert(alt_base_idx + 1, 'extra_vcf_info.AF', data_df.pop('extra_vcf_info.AF'))
-    clinical_data_df = data_df[data_df['gnomad4.af'] <= var_threshold]
+    clinical_data_df = data_df[data_df['gnomad.af'] <= var_threshold]
     return {output_file:data_df, output_file.replace('.xlsx', '_clinical.xlsx'):clinical_data_df}
 
 def add_varsome_column(data_df):
