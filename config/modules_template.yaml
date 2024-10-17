@@ -92,7 +92,7 @@ variant_calling:
     vcf_freebayes: |
       filenames['vcf'].replace('.vcf', '_freebayes.vcf')
     vcf_deepvariant: |
-      filenames['vcf'].replace('.vcf', '_deepvariant.vcf.gz')
+      filenames['vcf'].replace('.vcf', '_deepvariant.vcf')
     tmp_vcf_freebayes: |
       f"{folders['tmp_dir']}{filenames['basename']}_freebayes.vcf"
     tmp_vcf_deepvariant: |
