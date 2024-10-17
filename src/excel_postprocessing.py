@@ -123,11 +123,12 @@ def design_data_df(df:pd.DataFrame) -> Workbook:
 
     # Применение цветовой кодировки к Gnomad Global AF
     for col in ['gnomad.af', 'gnomad4.af']:
-        global_af_colors = df[col].apply(colorize_global_af)
-        # Добавляем форматы в Excel после создания листа
-        for idx, color in enumerate(global_af_colors, start=2):  # Индексация с 2, чтобы пропустить заголовок
-            cell = ws_data.cell(row=idx, column=df.columns.get_loc(col) + 1)
-            cell.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
+        if col in data_df.columns.values:
+            global_af_colors = df[col].apply(colorize_global_af)
+            # Добавляем форматы в Excel после создания листа
+            for idx, color in enumerate(global_af_colors, start=2):  # Индексация с 2, чтобы пропустить заголовок
+                cell = ws_data.cell(row=idx, column=df.columns.get_loc(col) + 1)
+                cell.fill = PatternFill(start_color=color, end_color=color, fill_type="solid")
     
     format_dataframe(ws_data, df)
     # Добавление проверки данных (пример для первой колонки)
