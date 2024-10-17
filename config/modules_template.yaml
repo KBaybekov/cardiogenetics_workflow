@@ -142,9 +142,7 @@ annotation:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     vcf: |
-      f"{folders['vcf_dir']}{filenames['basename']}.vcf"
-    cravat: |
-      f"{folders['ann_dir']}{filenames['basename']}"
+      f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
   
   commands:
     before_batch:
@@ -180,9 +178,9 @@ excel_postprocessing:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     cravat_tsv: |
-      f"{folders['ann_dir']}{filenames['basename']}_cravat"
+      f"{sample}"
     excel: |
-      f"{folders['ann_dir']}{filenames['basename']}_cravat"
+      f"{folders['excel_dir']}{filenames['basename']}.xlsx"
   
   commands:
     before_batch:
