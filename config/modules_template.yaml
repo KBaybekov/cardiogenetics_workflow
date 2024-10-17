@@ -58,7 +58,7 @@ align:
       - fastqc_raw
       - multiqc
 
-  result_dir: |
+  result_dir: >-
     bam
 
 
@@ -114,7 +114,7 @@ variant_calling:
       - merged_vcf_actions
     after_batch:
   
-  result_dir: |
+  result_dir: >-
     vcf
 
 
@@ -150,7 +150,7 @@ annotation:
       - cravat
     after_batch:
 
-  result_dir: |
+  result_dir: >-
     annotation
 
 
