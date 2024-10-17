@@ -1,4 +1,7 @@
 #TRIMMOMATIC IS OFF!
+
+#RM TMP IS OFF!!!
+# batch:       - remove_tmp_files after_batch: - remove_tmp_folder
 sequence: ['align', 'variant_calling', 'annotation', 'excel_postprocessing']
 
 align:
@@ -51,11 +54,9 @@ align:
       - abra2
       - samtools_index_abra
       - qualimap
-      - remove_tmp_files
     after_batch:
       - fastqc_raw
       - multiqc
-      - remove_tmp_folder
 
   result_dir: |
     bam
@@ -111,7 +112,6 @@ variant_calling:
       - dv_bgzip
       - vcf_intersection
       - merged_vcf_actions
-      - remove_tmp_files
     after_batch:
   
   result_dir: |
