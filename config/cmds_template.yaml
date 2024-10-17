@@ -28,13 +28,13 @@ deepvariant: |
 fb_vcf_filtering: |
   f'{programms["bcftools"]} filter --include {args["variant_filters"]} --threads {args["threads"]} {filenames["tmp_vcf_freebayes"]} > {filenames["vcf_freebayes"]}'
 fb_bgzip: |
-  f'bgzip -@ {args["threads"]} {filenames["vcf_freebayes"]} && tabix -p vcf {filenames["vcf_freebayes"]}.gz'
+  f'bgzip -@ {args["threads"]} {filenames["vcf_freebayes"]} && tabix -p vcf {filenames["vcf_freebayes"]}'
 dv_vcf_filtering: |
   f'{programms["bcftools"]} filter --include {args["variant_filters"]} --threads {args["threads"]} {filenames["tmp_vcf_deepvariant"]} > {filenames["vcf_deepvariant"]}'
 dv_bgzip: |
-  f'bgzip -@ {args["threads"]} {filenames["vcf_deepvariant"]} && tabix -p vcf {filenames["vcf_deepvariant"]}.gz'
+  f'bgzip -@ {args["threads"]} {filenames["vcf_deepvariant"]} && tabix -p vcf {filenames["vcf_deepvariant"]}'
 vcf_intersection: |
-  f'{programms["bcftools"]} isec  -p {folders["tmp_dir"]}isec/ {filenames["vcf_deepvariant"]}.gz {filenames["vcf_freebayes"]}.gz'
+  f'{programms["bcftools"]} isec  -p {folders["tmp_dir"]}isec/ {filenames["vcf_deepvariant"]} {filenames["vcf_freebayes"]}'
 merged_vcf_actions: |
   f'bgzip -@ {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf && tabix -p vcf {folders["tmp_dir"]}isec/0003.vcf.gz && mv {folders["tmp_dir"]}isec/0003.vcf.gz {filenames["vcf"]}'
 
