@@ -123,7 +123,7 @@ def design_data_df(df:pd.DataFrame) -> Workbook:
 
     # Применение цветовой кодировки к Gnomad Global AF
     for col in ['gnomad.af', 'gnomad4.af']:
-        if col in data_df.columns.values:
+        if col in df.columns.values:
             global_af_colors = df[col].apply(colorize_global_af)
             # Добавляем форматы в Excel после создания листа
             for idx, color in enumerate(global_af_colors, start=2):  # Индексация с 2, чтобы пропустить заголовок
