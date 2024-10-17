@@ -44,7 +44,7 @@ cravat: |
 
 #excel_postprocessing
 excel_postprocessing: |
-  f'{args["project_path"]}/src/excel_postprocessing.py {filenames["cravat_tsv"]} {filenames["excel"]} {args["variant_frequency_threshold"]}'
+  f'python3 {args["project_path"]}/src/excel_postprocessing.py {filenames["cravat_tsv"]} {filenames["excel"]} {args["variant_frequency_threshold"]}'
 
 # removing tmp files
 remove_tmp_files: |
