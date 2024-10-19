@@ -67,13 +67,13 @@ variant_calling:
     align
   folders:
     input_dir:
+    output_dir:
       log_dir:
         Logs
       tmp_dir:
         tmp
       vcf_dir:
         vcf
-    output_dir:
       
   
   source_extensions:
@@ -117,8 +117,6 @@ annotation:
     variant_calling
   folders:
     input_dir:
-      vcf_dir:
-        vcf
     output_dir:
       log_dir:
         Logs
@@ -153,8 +151,6 @@ excel_postprocessing:
     annotation
   folders:
     input_dir:
-      ann_dir:
-        annotation
     output_dir:
       log_dir:
         Logs
