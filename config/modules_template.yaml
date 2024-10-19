@@ -87,13 +87,9 @@ variant_calling:
     abra_bam: |
       f"{folders['input_dir']}{filenames['basename']}_abra2.bam"
     vcf_fb: |
-      f"{folders['vcf_dir']}{filenames['basename']}_fb.vcf"
+      f"{folders['vcf_dir']}{filenames['basename']}_fb.vcf.gz"
     vcf_dv: |
-      f"{folders['vcf_dir']}{filenames['basename']}_dv.vcf"
-    tmp_vcf_fb: |
-      f"{folders['tmp_dir']}{filenames['basename']}_fb.vcf"
-    tmp_vcf_dv: |
-      f"{folders['tmp_dir']}{filenames['basename']}_dv.vcf"
+      f"{folders['vcf_dir']}{filenames['basename']}_dv.vcf.gz"
     vcf: |
       f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
     unzipped_vcf: |

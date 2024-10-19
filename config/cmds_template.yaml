@@ -31,9 +31,9 @@ deepvariant: |
 vcf_intersection: |
   f'{programms["bcftools"]} isec -p {folders["tmp_dir"]}isec/ {filenames["vcf_dv"]} {filenames["vcf_fb"]}'
 vcf_filtering: |
-  f'{programms["bcftools"]} filter --include {args["variant_filters_freebayes"]} --threads {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf > {filenames["vcf"].removesuffix(".gz")}'
+  f'{programms["bcftools"]} filter --include {args["variant_filters_freebayes"]} --threads {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf > {filenames["unzipped_vcf"]}'
 merged_vcf_actions: |
-  f'bgzip -@ {args["threads"]} {filenames["vcf"].removesuffix(".gz")} && tabix -p vcf {filenames["vcf"]}'
+  f'bgzip -@ {args["threads"]} {filenames["unzipped_vcf"]} && tabix -p vcf {filenames["vcf"]}'
 #fb_vcf_filtering: |
 #  f'{programms["bcftools"]} filter --include {args["variant_filters_freebayes"]} --threads {args["threads"]} {filenames["vcf_fb"]} > {filenames["tmp_vcf_fb"]}'
 #dv_vcf_filtering: |
