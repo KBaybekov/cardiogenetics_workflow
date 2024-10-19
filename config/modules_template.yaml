@@ -90,6 +90,8 @@ variant_calling:
       f"{folders['vcf_dir']}{filenames['basename']}_fb.vcf.gz"
     vcf_dv: |
       f"{folders['vcf_dir']}{filenames['basename']}_dv.vcf.gz"
+    vcf_dv: |
+      f"{folders['vcf_dir']}{filenames['basename']}_dv.gvcf.gz"
     vcf: |
       f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
     unzipped_vcf: |
