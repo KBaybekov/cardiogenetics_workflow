@@ -24,7 +24,7 @@ align:
         bam
   
   source_extensions:
-    ['_R1.fastq.gz', '_R1.fq.gz']
+    ['1.fastq.gz', '1.fq.gz']
 
   filenames:
     filename: |
@@ -86,31 +86,34 @@ variant_calling:
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     abra_bam: |
       f"{folders['input_dir']}{filenames['basename']}_abra2.bam"
+    vcf_fb: |
+      f"{folders['vcf_dir']}{filenames['basename']}_fb.vcf"
+    vcf_dv: |
+      f"{folders['vcf_dir']}{filenames['basename']}_dv.vcf"
+    tmp_vcf_fb: |
+      f"{folders['tmp_dir']}{filenames['basename']}_fb.vcf"
+    tmp_vcf_dv: |
+      f"{folders['tmp_dir']}{filenames['basename']}_dv.vcf"
     vcf: |
       f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
     unzipped_vcf: |
       filenames['vcf'].removesuffix('.gz')
-    vcf_freebayes: |
-      filenames['vcf'].replace('.vcf', '_freebayes.vcf')
-    vcf_deepvariant: |
-      filenames['vcf'].replace('.vcf', '_deepvariant.vcf')
-    tmp_vcf_freebayes: |
-      f"{folders['tmp_dir']}{filenames['basename']}_freebayes.vcf"
-    tmp_vcf_deepvariant: |
-      f"{folders['tmp_dir']}{filenames['basename']}_deepvariant.vcf"
-    gvcf_deepvariant: |
-      filenames['vcf_deepvariant'].replace('vcf','gvcf')
+
+    unzipped_vcf_fb: |
+      filenames['tmp_vcf_fb'].replace('_fb.vcf', '_fb_filtered.vcf')
+    vcf_fb: |
+      filenames['unzipped_vcf_fb'].replace(folders['tmp_dir'], folders['vcf_dir']).replace('_filtered.vcf', '.vcf.gz')
+    vcf_dv: |
+      filenames['unzipped_vcf_dv'].replace(folders['tmp_dir'], folders['vcf_dir']).replace('_filtered.vcf', '.vcf.gz')
 
   commands:
     before_batch:
     sample_level:
       - freebayes
+      - fb_bgzip_and_tabix
       - deepvariant
-      - fb_vcf_filtering
-      - fb_bgzip
-      - dv_vcf_filtering
-      - dv_bgzip
       - vcf_intersection
+      - vcf_filtering
       - merged_vcf_actions
     after_batch:
   
