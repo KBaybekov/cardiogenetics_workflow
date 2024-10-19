@@ -95,13 +95,6 @@ variant_calling:
     unzipped_vcf: |
       filenames['vcf'].removesuffix('.gz')
 
-    unzipped_vcf_fb: |
-      filenames['tmp_vcf_fb'].replace('_fb.vcf', '_fb_filtered.vcf')
-    vcf_fb: |
-      filenames['unzipped_vcf_fb'].replace(folders['tmp_dir'], folders['vcf_dir']).replace('_filtered.vcf', '.vcf.gz')
-    vcf_dv: |
-      filenames['unzipped_vcf_dv'].replace(folders['tmp_dir'], folders['vcf_dir']).replace('_filtered.vcf', '.vcf.gz')
-
   commands:
     before_batch:
     sample_level:
