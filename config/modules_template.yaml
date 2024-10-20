@@ -76,6 +76,10 @@ variant_calling:
         tmp
       vcf_dir:
         vcf
+      fb_dir:
+        vcf/Freebayes
+      dv_dir:
+        vcf/DeepVariant
       
   
   source_extensions:
@@ -89,11 +93,11 @@ variant_calling:
     abra_bam: |
       f"{folders['input_dir']}{filenames['basename']}_abra2.bam"
     vcf_fb: |
-      f"{folders['vcf_dir']}{filenames['basename']}_fb.vcf.gz"
+      f"{folders['fb_dir']}{filenames['basename']}_fb.vcf.gz"
     vcf_dv: |
-      f"{folders['vcf_dir']}{filenames['basename']}_dv.vcf.gz"
+      f"{folders['dv_dir']}{filenames['basename']}_dv.vcf.gz"
     gvcf_dv: |
-      f"{folders['vcf_dir']}{filenames['basename']}_dv.gvcf.gz"
+      f"{folders['dv_dir']}{filenames['basename']}_dv.gvcf.gz"
     vcf: |
       f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
     unzipped_vcf: |
