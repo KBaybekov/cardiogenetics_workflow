@@ -1,68 +1,64 @@
 #REPLACE feature-file WITH VAR IN QUALIMAP
 
 #before batch
+update_docker_dv: >-
+  docker pull google/deepvariant
 
 #align
-trim_galore: |
+trim_galore: >-
   f'{programms["trim_galore"]} --length 35 --output_dir {folders["tmp_dir"]} --cores 8 --paired {" ".join(filenames["raw_fastqs"])}'
-trimmomatic: |
+trimmomatic: >-
   f'java -jar {programms["trimmomatic"]} PE -threads {args["threads"]} {" ".join(filenames["trim_galore_fastqs"])} -baseout {folders["tmp_dir"]}{filenames["basename"]}.fq {args["trimmomatic_opts"]}'
-aligning: |
+aligning: >-
   f'bwa mem -t {args["threads"]} -M {args["ref_fasta"]} {" ".join(filenames["trim_galore_fastqs"])} | {programms["samblaster"]} -M -e -r -q --addMateTags | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}'
-samtools_sort: |
+samtools_sort: >-
   f'{programms["samtools"]} sort -@ {args["threads"]} {filenames["in_bam"]} > {filenames["sorted_bam"]}'
-samtools_index: |
+samtools_index: >-
   f'{programms["samtools"]} index -@ {args["threads"]} {filenames["sorted_bam"]}'
-abra2: |
+abra2: >-
   f'java {programms["abra2"]} --log error --in {filenames["sorted_bam"]} --out {filenames["abra_bam"]} --ref {args["ref_fasta"]} --threads {args["threads"]} --tmpdir {folders["tmp_dir"]}'
-samtools_index_abra: |
+samtools_index_abra: >-
   f'{programms["samtools"]} index -@ {args["threads"]} {filenames["abra_bam"]}'
 qualimap:
   f'{programms["qualimap"]} bamqc --bam {filenames["abra_bam"]} -outdir {folders["qualimap_dir"]}{filenames["basename"]}/ -nt {args["threads"]} --feature-file /mnt/share/Сотрудники/Байбеков_Кирилл/ref/WES_bed/hg38_Twist_ILMN_Exome_2.5_Panel_Combined_Mito_no_chr.bed --collect-overlap-pairs --output-genome-coverage /mnt/share/Сотрудники/Байбеков_Кирилл/qualimap_test/cov.txt --outside-stats --paint-chromosome-limits --genome-gc-distr hg38 '
 
 #variant_calling
 #СНАЧАЛА КОЛЛИНГ, ПОТОМ МЕРДЖИНГ И В КОНЦЕ ФИЛЬТРАЦИЯ!
-freebayes: |
+freebayes: >-
   f'{programms["freebayes"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'
-fb_bgzip_and_tabix: |
-  f'bgzip -@ {args["threads"]} {filenames["vcf_fb"].removesuffix(".gz")} && tabix -p vcf {filenames["vcf_fb"]}'
-deepvariant: |
+fb_bgzip: >-
+  f'bgzip -@ {args["threads"]} {filenames["vcf_fb"].removesuffix(".gz")}'
+fb_tabix: >-
+  f'tabix -p vcf {filenames["vcf_fb"]}'
+deepvariant: >-
   f'sudo docker run -v {folders["input_dir"]}:/input -v {folders["vcf_dir"]}:/output -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/ google/deepvariant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads=/input/{os.path.basename(filenames["abra_bam"])} --output_vcf=/output/{os.path.basename(filenames["vcf_dv"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_dv"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
-vcf_intersection: |
-  f'{programms["bcftools"]} isec -p {folders["tmp_dir"]}isec/ {filenames["vcf_dv"]} {filenames["vcf_fb"]}'
-vcf_filtering: |
-  f'{programms["bcftools"]} filter --include {args["variant_filters_freebayes"]} --threads {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf > {filenames["unzipped_vcf"]}'
-merged_vcf_actions: |
-  f'bgzip -@ {args["threads"]} {filenames["unzipped_vcf"]} && tabix -p vcf {filenames["vcf"]}'
-#fb_vcf_filtering: |
-#  f'{programms["bcftools"]} filter --include {args["variant_filters_freebayes"]} --threads {args["threads"]} {filenames["vcf_fb"]} > {filenames["tmp_vcf_fb"]}'
-#dv_vcf_filtering: |
-#  f'{programms["bcftools"]} filter --include {args["variant_filters_deepvariant"]} --threads {args["threads"]} {filenames["vcf_dv"]} > {filenames["tmp_vcf_dv"]}'
-#fb_bgzip_and_tabix: |
-#  f'bgzip -@ {args["threads"]} {filenames["tmp_vcf_fb"]}' -o {filenames["vcf_fb"]} && tabix -p vcf {filenames["vcf_fb"]}'
-#tabix_dv: |
-#  f'tabix -p vcf {filenames["vcf_dv"]}'
-#dv_bgzip: |
-#  f'bgzip -@ {args["threads"]} {filenames["unzipped_vcf_dv"]} -o {filenames["vcf_dv"]}'
+vcf_intersection: >-
+  f'{programms["bcftools"]} isec --threads {args["threads"]} -p {folders["tmp_dir"]}isec/ {filenames["vcf_dv"]} {filenames["vcf_fb"]}'
+vcf_filtering: >-
+  f'{programms["bcftools"]} filter --include {args["variant_filters"]} --threads {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf > {filenames["unzipped_vcf"]}'
+merged_vcf_bgzip: >-
+  f'bgzip -@ {args["threads"]} {filenames["unzipped_vcf"]}'
+merged_vcf_tabix: >-
+  f'tabix -p vcf {filenames["vcf"]}'
 
 #annotation
-cravat: |
+cravat: >-
   f'{programms["cravat"]} run {filenames["vcf"]} -l hg38 -t tsv -a {args["cravat_annotators"]} -d {folders["ann_dir"]} --mp {args["threads"]} -n {filenames["basename"]}'
 
 #excel_postprocessing
-excel_postprocessing: |
+excel_postprocessing: >-
   f'python3 {args["project_path"]}/src/excel_postprocessing.py {filenames["cravat_tsv"]} {filenames["excel"]} {args["variant_frequency_threshold"]}'
 
 # removing tmp files
-remove_tmp_files: |
-  f'rm -rf {folders["tmp_dir"]}{filenames["basename"]}*'
+remove_tmp_sample_files: >-
+  f'rm -rf {folders["tmp_dir"]}/*'
 
 #after batch
 # removing tmp folder
-remove_tmp_folder: |
+remove_tmp_folder: >-
   f'rm -rf {folders["tmp_dir"]}'
 #align
-fastqc_raw: |
+fastqc_raw: >-
   f'{programms["fastqc"]} --quiet --threads {args["threads"]} -o {folders["fastqc_dir"]} {folders["input_dir"]}*.fastq.gz'
-multiqc:
+multiqc: >-
   f'{programms["multiqc"]} {folders["qc_dir"]} --outdir folders["qc_dir"]multiqc/ --interactive --export --quiet'

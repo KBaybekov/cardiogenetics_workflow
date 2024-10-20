@@ -14,7 +14,5 @@ trimmomatic_opts: >-
   SLIDINGWINDOW:4:18 HEADCROP:10 MINLEN:35
 variant_frequency_threshold: >-
   0.15
-variant_filters_deepvariant: >-
-  "QUAL>20 && DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))"
-variant_filters_freebayes: >-
+variant_filters: >-
   "INFO/QA>20 && INFO/DP>18 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 5))"

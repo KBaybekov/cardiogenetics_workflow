@@ -54,9 +54,11 @@ align:
       - abra2
       - samtools_index_abra
       - qualimap
+      - remove_tmp_sample_files
     after_batch:
       - fastqc_raw
       - multiqc
+      - remove_tmp_folder
 
   result_dir: >-
     bam
@@ -99,14 +101,19 @@ variant_calling:
 
   commands:
     before_batch:
+      - update_docker_dv
     sample_level:
       - freebayes
-      - fb_bgzip_and_tabix
+      - fb_bgzip
+      - fb_tabix
       - deepvariant
       - vcf_intersection
       - vcf_filtering
-      - merged_vcf_actions
+      - merged_vcf_bgzip
+      - merged_vcf_tabix
+      - remove_tmp_sample_files
     after_batch:
+      - remove_tmp_folder
   
   result_dir: >-
     vcf
@@ -140,7 +147,9 @@ annotation:
     before_batch:
     sample_level:
       - cravat
+      - remove_tmp_sample_files
     after_batch:
+      - remove_tmp_folder
 
   result_dir: >-
     annotation
@@ -154,8 +163,6 @@ excel_postprocessing:
     output_dir:
       log_dir:
         Logs
-      tmp_dir:
-        tmp
       excel_dir:
         excel
   
