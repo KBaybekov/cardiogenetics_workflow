@@ -69,8 +69,6 @@ variant_calling:
     align
   folders:
     input_dir:
-      bam_dir:
-        bam
     output_dir:
       log_dir:
         Logs
@@ -130,8 +128,6 @@ annotation:
     variant_calling
   folders:
     input_dir:
-      vcf_dir:
-        vcf
     output_dir:
       log_dir:
         Logs
@@ -149,7 +145,7 @@ annotation:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     vcf: |
-      f"{folders['vcf_dir']}{filenames['basename']}.vcf.gz"
+      f"{sample}"
   
   commands:
     before_batch:
@@ -168,8 +164,6 @@ excel_postprocessing:
     annotation
   folders:
     input_dir:
-      ann_dir:
-        annotation
     output_dir:
       log_dir:
         Logs
