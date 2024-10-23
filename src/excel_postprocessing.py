@@ -43,6 +43,77 @@ def read_tsv(file):
         if 'uid' in data_df.columns:
             data_df = data_df.drop(columns=['uid'])
 
+        # Переименование колонок
+        rename_dict = {'chrom': 'Chrom', 'pos': 'Position', 'ref_base': 'Ref Base', 'alt_base': 'Alt Base', 'note_variant': 'Variant Note',
+                       'coding': 'Coding', 'hugo': 'Gene', 'transcript': 'Transcript', 'so': 'Sequence Ontology', 'exonno': 'Exon Number',
+                        'cchange': 'cDNA change', 'achange': 'Protein Change', 'all_mappings': 'All Mappings', 'gposend': 'End Position',
+                        'numsample': 'Sample Count', 'samples': 'Samples', 'tags': 'Tags', 'hg19.chrom': 'hg19 Chrom', 'hg19.pos': 'hg19 Position',
+                        'cardioboost.cardiomyopathy': 'CardioBoost Cardiomyopathy Score', 'cardioboost.cardiomyopathy1': 'CardioBoost Cardiomyopathy Class',
+                        'cardioboost.arrhythmias': 'CardioBoost Arrhythmia Score', 'cardioboost.arrhythmias1': 'CardioBoost Arrhythmia Class',
+                        'clinpred.score': 'ClinPred Score', 'clinpred.rankscore': 'ClinPred Rank Score', 'clinvar.sig': 'ClinVar Clinical Significance',
+                        'clinvar.disease_refs': 'ClinVar Disease Ref Nums', 'clinvar.disease_refs_incl': 'ClinVar Disease Ref Nums Included Variant',
+                        'clinvar.disease_names': 'ClinVar Disease Names', 'clinvar.clinvar_preferred_names': 'ClinVar Preferred Disease Names',
+                        'clinvar.hgvs': 'ClinVar HGVS', 'clinvar.rev_stat': 'ClinVar Review Status', 'clinvar.id': 'ClinVar ClinVar ID',
+                        'clinvar.sig_conf': 'ClinVar Significance Detail', 'clinvar.sig_conf_incl': 'ClinVar Significance Detail',
+                        'clinvar.af_go_esp': 'ClinVar Allele Frequencies GO-ESP', 'clinvar.af_exac': 'ClinVar Allele Frequencies EXAC',
+                        'clinvar.af_tgp': 'ClinVar Allele Frequencies TGP', 'clinvar.clinvar_allele_id': 'ClinVar Clinvar Allele Id',
+                        'clinvar.variant_type': 'ClinVar Variant Type', 'clinvar.variant_type_sequence_ontology': 'ClinVar Variant Type SO',
+                        'clinvar.variant_clinical_sources': 'ClinVar Variant Clinical Sources', 'clinvar.dbvar_id': 'ClinVar DBVAR ID',
+                        'clinvar.clinvar_gene_info': 'ClinVar Gene names for the variant', 'clinvar.gene_info': 'ClinVar Molecular Consequence',
+                        'clinvar.onc_disease_name': 'ClinVar Oncogenecity Disease Names', 'clinvar.onc_disease_name_incl': 'ClinVar Oncogenecity Disease Names Incl',
+                        'clinvar.onc_disease_refs': 'ClinVar Oncogenecity Disease References',
+                        'clinvar.onc_disease_refs_incl': 'ClinVar Oncogenecity Disease References Incl',
+                        'clinvar.onc_classification': 'ClinVar Oncogenecity Classification',
+                        'clinvar.onc_classification_type': 'ClinVar Oncogenecity Classification Type', 'clinvar.onc_rev_stat': 'ClinVar Oncogenecity Review Status',
+                        'clinvar.onc_classification_conflicting': 'ClinVar Conflicting Oncogenecity Classification',
+                        'clinvar.allele_origin': 'ClinVar Allele Origin', 'clinvar.dbsnp_id': 'ClinVar DBSNP ID',
+                        'clinvar.somatic_disease_name': 'ClinVar Somatic Disease Name', 'clinvar.somatic_disease_name_incl': 'ClinVar Somatic Disease Name Incl',
+                        'clinvar.somatic_refs': 'ClinVar Somatic References', 'clinvar.somatic_refs_incl': 'ClinVar Somatic References Incl',
+                        'clinvar.somatic_rev_stat': 'ClinVar Somatic Review Status', 'clinvar.somatic_impact': 'ClinVar Somatic Impact',
+                        'clinvar.somatic_impact_incl': 'ClinVar Somatic Impact Incl', 'clinvar.germline_or_somatic': 'ClinVar Germline or Somatic',
+                        'clinvar_acmg.ps1_id': 'ClinVar ACMG PS1 ID', 'clinvar_acmg.pm5_id': 'ClinVar ACMG PM5 ID',
+                        'extra_vcf_info.pos': 'Extra VCF INFO Annotations VCF Position', 'extra_vcf_info.ref': 'Extra VCF INFO Annotations VCF Ref Allele',
+                        'extra_vcf_info.alt': 'Extra VCF INFO Annotations VCF Alt Allele', 'extra_vcf_info.NS': 'Extra VCF INFO Annotations NS',
+                        'extra_vcf_info.DP': 'Extra VCF INFO Annotations DP', 'extra_vcf_info.DPB': 'Extra VCF INFO Annotations DPB',
+                        'extra_vcf_info.AC': 'Extra VCF INFO Annotations AC', 'extra_vcf_info.AN': 'Extra VCF INFO Annotations AN',
+                        'extra_vcf_info.AF': 'Extra VCF INFO Annotations AF', 'extra_vcf_info.RO': 'Extra VCF INFO Annotations RO',
+                        'extra_vcf_info.AO': 'Extra VCF INFO Annotations AO', 'extra_vcf_info.PRO': 'Extra VCF INFO Annotations PRO',
+                        'extra_vcf_info.PAO': 'Extra VCF INFO Annotations PAO', 'extra_vcf_info.QR': 'Extra VCF INFO Annotations QR',
+                        'extra_vcf_info.QA': 'Extra VCF INFO Annotations QA', 'extra_vcf_info.PQR': 'Extra VCF INFO Annotations PQR',
+                        'extra_vcf_info.PQA': 'Extra VCF INFO Annotations PQA', 'extra_vcf_info.SRF': 'Extra VCF INFO Annotations SRF',
+                        'extra_vcf_info.SRR': 'Extra VCF INFO Annotations SRR', 'extra_vcf_info.SAF': 'Extra VCF INFO Annotations SAF',
+                        'extra_vcf_info.SAR': 'Extra VCF INFO Annotations SAR', 'extra_vcf_info.SRP': 'Extra VCF INFO Annotations SRP',
+                        'extra_vcf_info.SAP': 'Extra VCF INFO Annotations SAP', 'extra_vcf_info.AB': 'Extra VCF INFO Annotations AB',
+                        'extra_vcf_info.ABP': 'Extra VCF INFO Annotations ABP', 'extra_vcf_info.RUN': 'Extra VCF INFO Annotations RUN',
+                        'extra_vcf_info.RPP': 'Extra VCF INFO Annotations RPP', 'extra_vcf_info.RPPR': 'Extra VCF INFO Annotations RPPR',
+                        'extra_vcf_info.RPL': 'Extra VCF INFO Annotations RPL', 'extra_vcf_info.RPR': 'Extra VCF INFO Annotations RPR',
+                        'extra_vcf_info.EPP': 'Extra VCF INFO Annotations EPP', 'extra_vcf_info.EPPR': 'Extra VCF INFO Annotations EPPR',
+                        'extra_vcf_info.DPRA': 'Extra VCF INFO Annotations DPRA', 'extra_vcf_info.ODDS': 'Extra VCF INFO Annotations ODDS',
+                        'extra_vcf_info.GTI': 'Extra VCF INFO Annotations GTI', 'extra_vcf_info.TYPE': 'Extra VCF INFO Annotations TYPE',
+                        'extra_vcf_info.CIGAR': 'Extra VCF INFO Annotations CIGAR', 'extra_vcf_info.NUMALT': 'Extra VCF INFO Annotations NUMALT',
+                        'extra_vcf_info.MEANALT': 'Extra VCF INFO Annotations MEANALT', 'extra_vcf_info.LEN': 'Extra VCF INFO Annotations LEN',
+                        'extra_vcf_info.MQM': 'Extra VCF INFO Annotations MQM', 'extra_vcf_info.MQMR': 'Extra VCF INFO Annotations MQMR',
+                        'extra_vcf_info.PAIRED': 'Extra VCF INFO Annotations PAIRED', 'extra_vcf_info.PAIREDR': 'Extra VCF INFO Annotations PAIREDR',
+                        'extra_vcf_info.MIN_DP': 'Extra VCF INFO Annotations MIN_DP', 'extra_vcf_info.END': 'Extra VCF INFO Annotations END',
+                        'hpo.id': 'Human Phenotype Ontology HPO ID', 'hpo.term': 'Human Phenotype Ontology HPO Term',
+                        'hpo.all': 'Human Phenotype Ontology All Annotations', 'ncbigene.ncbi_desc': 'NCBI Gene Description', 'ncbigene.entrez': 'NCBI Gene Entrez ID',
+                        'omim.omim_id': 'OMIM Entry ID', 'original_input.chrom': 'Original Input Chrom', 'original_input.pos': 'Original Input Pos',
+                        'original_input.ref_base': 'Original Input Reference allele', 'original_input.alt_base': 'Original Input Alternate allele',
+                        'spliceai.ds_ag': 'SpliceAI Acceptor Gain Score', 'spliceai.ds_al': 'SpliceAI Acceptor Loss Score', 'spliceai.ds_dg': 'SpliceAI Donor Gain Score',
+                        'spliceai.ds_dl': 'SpliceAI Donor Loss Score', 'spliceai.dp_ag': 'SpliceAI Acceptor Gain Position',
+                        'spliceai.dp_al': 'SpliceAI Acceptor Loss Position', 'spliceai.dp_dg': 'SpliceAI Donor Gain Position',
+                        'spliceai.dp_dl': 'SpliceAI Donor Loss Posiiton', 'vcfinfo.phred': 'VCF Info Phred', 'vcfinfo.filter': 'VCF Info VCF filter',
+                        'vcfinfo.zygosity': 'VCF Info Zygosity', 'vcfinfo.alt_reads': 'VCF Info Alternate reads', 'vcfinfo.tot_reads': 'VCF Info Total reads',
+                        'vcfinfo.af': 'VCF Info Variant AF', 'vcfinfo.hap_block': 'VCF Info Haplotype block ID', 'vcfinfo.hap_strand': 'VCF Info Haplotype strand ID',
+                        'gnomad.af': 'gnomAD Global AF', 'gnomad.af_afr': 'gnomAD African AF', 'gnomad.af_amr': 'gnomAD American AF',
+                        'gnomad.af_asj': 'gnomAD Ashkenazi Jewish AF', 'gnomad.af_eas': 'gnomAD East Asian AF', 'gnomad.af_fin': 'gnomAD Finnish AF',
+                        'gnomad.af_nfe': 'gnomAD Non-Fin Eur AF', 'gnomad.af_oth': 'gnomAD Other AF', 'gnomad.af_sas': 'gnomAD South Asian AF',
+                        'gnomad4.af': 'gnomAD4 Global AF', 'gnomad4.af_afr': 'gnomAD4 African AF', 'gnomad4.af_ami': 'gnomAD4 Amish AF',
+                        'gnomad4.af_amr': 'gnomAD4 American AF', 'gnomad4.af_asj': 'gnomAD4 Ashkenazi Jewish AF', 'gnomad4.af_eas': 'gnomAD4 East Asian AF',
+                        'gnomad4.af_fin': 'gnomAD4 Finnish AF', 'gnomad4.af_mid': 'gnomAD4 Mid-East AF', 'gnomad4.af_nfe': 'gnomAD4 Non-Fin Eur AF',
+                        'gnomad4.af_sas': 'gnomAD4 South Asian AF'}  
+        data_df.rename(columns=rename_dict, inplace=True)
+
     return data_df, header_df
 
 
@@ -62,27 +133,27 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
 
 def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str) -> dict:
     add_varsome_column(data_df)
-    # Перемещение большинства колонок 'Extra VCF Info, Original_input' в конец;  важных из Extra VCF Info - в начало
+    # Перемещение большинства колонок 'Extra VCF Info, Original Input' в конец;  важных из Extra VCF Info - в начало
     important_cols = ['SRF', 'SRR', 'SAF', 'SAR']
-    alt_base_idx = data_df.columns.get_loc('alt_base') + 1
+    alt_base_idx = data_df.columns.get_loc('Alt Base') + 1
     df_cols = data_df.columns.values
     for col in df_cols:
-        if 'extra_vcf_info' in col:
+        if 'Extra VCF INFO' in col:
             if any(important_col in col for important_col in important_cols):
                 data_df.insert(alt_base_idx + 1, col, data_df.pop(col))
             else:
                 extra_vcf_info_col = data_df.pop(col)
                 data_df[col] = extra_vcf_info_col
-        if 'Original_input' in col:
+        if 'Original Input' in col:
             original_input_col = data_df.pop(col)
             data_df[col] = original_input_col
     # перемещение налево Gnomad Global AF
-    for col in ['gnomad.af', 'gnomad4.af']:
+    for col in ['gnomAD Global AF', 'gnomAD4 Global AF']:
         if col in data_df.columns.values:
             data_df.insert(alt_base_idx + 1, col, data_df.pop(col))
     # AF ставим всё же левее всех остальных
-    data_df.insert(alt_base_idx + 1, 'extra_vcf_info.AF', data_df.pop('extra_vcf_info.AF'))
-    clinical_data_df = data_df[data_df['gnomad.af'] <= var_threshold]
+    data_df.insert(alt_base_idx + 1, 'Extra VCF INFO Annotations AF', data_df.pop('Extra VCF INFO Annotations AF'))
+    clinical_data_df = data_df[data_df['gnomAD Global AF'] <= var_threshold]
     return {output_file:data_df, output_file.replace('.xlsx', '_clinical.xlsx'):clinical_data_df}
 
 def add_varsome_column(data_df):
@@ -122,7 +193,7 @@ def design_data_df(df:pd.DataFrame) -> Workbook:
         ws_data.append(r)
 
     # Применение цветовой кодировки к Gnomad Global AF
-    for col in ['gnomad.af', 'gnomad4.af']:
+    for col in ['gnomAD Global AF', 'gnomAD4 Global AF']:
         if col in df.columns.values:
             global_af_colors = df[col].apply(colorize_global_af)
             # Добавляем форматы в Excel после создания листа
@@ -159,7 +230,10 @@ def format_dataframe(ws, df, max_width=15):
 
         # Определяем оптимальную ширину для каждой колонки
         series = df[col].astype(str)
-        max_len = max(series.map(len).max(), len(col)) + 6
+        try:
+            max_len = max(series.map(len).max(), len(col)) + 6
+        except ValueError:
+            max_len = 10
         # Если длина текста больше максимальной ширины, устанавливаем максимальную ширину
         column_width = min(max_len + 2, max_width)  # Добавляем 2 символа для лучшей читабельности
         ws.column_dimensions[get_column_letter(idx+1)].width = column_width
@@ -179,22 +253,12 @@ def add_header_sheet(wb:Workbook, header_df:pd.DataFrame) -> Workbook:
     return wb
 
 
-def add_data_validation(ws, df, column_letter):
-    """
-    Добавляет проверку данных в столбец.
-    """
-    df_len = len(df)
-    dv = DataValidation(type="list", formula1='"Yes,No"', allow_blank=True)
-    dv.ranges.add(f'{column_letter}2:{column_letter}{df_len+1}')
-    ws.add_data_validation(dv)
-
-
 def main():
     """
     Основная функция. Читает входной TSV файл, преобразует его и сохраняет в Excel.
     """
     if len(sys.argv) != 4:
-        print("Использование: script.py in.tsv out.xlsx")
+        print("Использование: script.py in.tsv out.xlsx var_threshold")
         sys.exit(1)
 
     input_file = sys.argv[1]
