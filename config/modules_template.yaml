@@ -105,7 +105,7 @@ variant_calling:
 
   commands:
     before_batch:
-      - update_docker_dv
+      - start_docker_dv
     sample_level:
       - freebayes
       - fb_bgzip
@@ -117,6 +117,7 @@ variant_calling:
       - merged_vcf_tabix
       - remove_tmp_sample_files
     after_batch:
+      - stop_docker_dv
       - remove_tmp_folder
   
   result_dir: >-
