@@ -4,7 +4,7 @@
 pull_docker_dv: >-
   docker pull google/deepvariant
 start_docker_dv: >-
-  f'docker run -d --name deep_variant google/deepvariant -v {folders["input_dir"]}:/input -v {folders["dv_dir"]}:/output -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/'
+  f'docker run -d --name deep_variant -v {folders["input_dir"]}:/input -v {folders["dv_dir"]}:/output -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/ google/deepvariant sleep infinity'
 
 #align
 trim_galore: >-
