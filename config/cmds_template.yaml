@@ -28,6 +28,8 @@ qualimap:
 #СНАЧАЛА КОЛЛИНГ, ПОТОМ МЕРДЖИНГ И В КОНЦЕ ФИЛЬТРАЦИЯ!
 freebayes: >-
   f'{programms["freebayes"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'
+freebayes_parallel: >-
+  f"""source activate freebayes && bash -c 'freebayes-parallel <(fasta_generate_regions.py {args["ref_fasta"]}.fai 100000) 24 -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'"""
 fb_bgzip: >-
   f'bgzip -@ {args["threads"]} {filenames["vcf_fb"].removesuffix(".gz")}'
 fb_tabix: >-

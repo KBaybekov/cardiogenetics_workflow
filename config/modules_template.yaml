@@ -91,7 +91,7 @@ variant_calling:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     abra_bam: |
-      f"{folders['input_dir']}{filenames['basename']}_abra2.bam"
+      sample
     vcf_fb: |
       f"{folders['fb_dir']}{filenames['basename']}_fb.vcf.gz"
     vcf_dv: |
@@ -108,7 +108,7 @@ variant_calling:
       - pull_docker_dv
       - start_docker_dv
     sample_level:
-      - freebayes
+      - freebayes_parallel
       - fb_bgzip
       - fb_tabix
       - deepvariant
