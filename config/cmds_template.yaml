@@ -1,9 +1,10 @@
 #REPLACE feature-file WITH VAR IN QUALIMAP
 
 #before batch
-start_docker_dv: |
+pull_docker_dv: >-
   docker pull google/deepvariant
-  docker run -d --name deep_variant google/deepvariant -v {folders["input_dir"]}:/input -v {folders["dv_dir"]}:/output -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/
+start_docker_dv: >-
+  f'docker run -d --name deep_variant google/deepvariant -v {folders["input_dir"]}:/input -v {folders["dv_dir"]}:/output -v {os.path.dirname(args["ref_fasta"])}:/ref/ -v {folders["tmp_dir"]}:/tmp/''
 
 #align
 trim_galore: >-
