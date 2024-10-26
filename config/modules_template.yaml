@@ -116,6 +116,7 @@ variant_calling:
       - vcf_filtering
       - merged_vcf_bgzip
       - merged_vcf_tabix
+      - reannotation
       - remove_tmp_sample_files_docker
     after_batch:
       - stop_docker_dv
