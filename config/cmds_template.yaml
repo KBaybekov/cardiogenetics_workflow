@@ -44,7 +44,7 @@ merged_vcf_bgzip: >-
   f'bgzip -@ {args["threads"]} {filenames["unzipped_vcf"]}'
 merged_vcf_tabix: >-
   f'tabix -p vcf {filenames["vcf"]}'
-remove_tmp_sample_files_docker: >-
+remove_tmp_sample_files_docker: |
   docker exec deep_variant rm -rf /tmp/intermediate_results_dir/
   docker exec deep_variant rm -rf /tmp/*
 
@@ -61,7 +61,7 @@ remove_tmp_sample_files: >-
   f'rm -rf {folders["tmp_dir"]}*'
 
 #after batch
-stop_docker_dv: >-
+stop_docker_dv: |
   docker stop deep_variant
   docker rm deep_variant
   
