@@ -142,12 +142,12 @@ annotation:
     ['.vcf','.vcf.gz']
   
   filenames:
-    filename: |
+    filename: >-
       os.path.basename(sample).split('.')[0]
-    basename: |
+    basename: >-
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
-    vcf: |
-      f"{sample}"
+    vcf: >-
+      sample
   
   commands:
     before_batch:
