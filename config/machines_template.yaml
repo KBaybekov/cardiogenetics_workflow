@@ -29,6 +29,7 @@ dell:
     qualimap: "qualimap"
     abra2: "abra2"
     samblaster: "samblaster"
+    trim_galore: "trim_galore"
     
   binaries:
     abra2: "-Xmx48G -jar /home/researcher/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
