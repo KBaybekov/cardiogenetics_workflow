@@ -32,7 +32,7 @@ align:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     raw_fastqs: |
-      [sample, sample.replace('_R1', '_R2')]
+      [sample, sample.replace('_1.', '_2.')]
     trim_galore_fastqs: |
       [s.replace(folders['input_dir'], folders['tmp_dir']).replace('.fastq.gz', f"_val_{(filenames['raw_fastqs'].index(s)+1)}.fq.gz") for s in filenames['raw_fastqs']]
     trimmomatic_fastqs: |
