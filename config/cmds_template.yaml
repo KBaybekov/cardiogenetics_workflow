@@ -62,8 +62,8 @@ remove_tmp_sample_files: >-
 
 #after batch
 stop_docker_dv: |
-  docker stop deep_variant
-  docker rm deep_variant
+  docker container stop deep_variant
+  docker container rm deep_variant
   
 # removing tmp folder
 remove_tmp_folder: >-
