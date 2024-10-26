@@ -58,7 +58,7 @@ excel_postprocessing: >-
 
 # removing tmp files
 remove_tmp_sample_files: >-
-  f'rm -rf {folders["tmp_dir"]}/*'
+  f'rm -rf {folders["tmp_dir"]}*'
 
 #after batch
 stop_docker_dv: |
