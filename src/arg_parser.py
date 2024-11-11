@@ -29,7 +29,7 @@ def parse_cli_args():
     parser.add_argument('-fr', '--freebayes_filters', default='', type=str, help=arg_descriptions['freebayes_filters'])
     parser.add_argument('-vff', '--variant_filters', default='', type=str, help=arg_descriptions['variant_filters'])
     parser.add_argument('-frt', '--variant_frequency_threshold', default='', type=str, help=arg_descriptions['variant_frequency_threshold'])
-    parser.add_argument('-dm', '--debug', default=False, type=str, help=arg_descriptions['debug'])
+    parser.add_argument('-db', '--debug', default='', help=arg_descriptions['debug'])
     parser.add_argument('-pp', '--project_path', default='', type=str, help=arg_descriptions['project_path'])
     parser.add_argument('-cr', '--cravat_annotators', default='', type=str, help=arg_descriptions['cravat_annotators'])
     parser.add_argument('-s', '--subfolders', default=False, type=str, help=arg_descriptions['subfolders'])
@@ -48,6 +48,8 @@ def parse_cli_args():
 
     if args.modules != '':
         args.modules = args.modules.split(',')
+    if args.debug != '':
+        args.debug = args.debug.split(',')
 
     # Загрузка значений по умолчанию
     default_values = load_yaml(f"{configs}/default_values.yaml",
