@@ -12,7 +12,7 @@ trim_galore: >-
 trimmomatic: >-
   f'java -jar {programms["trimmomatic"]} PE -threads {args["threads"]} {" ".join(filenames["trim_galore_fastqs"])} -baseout {folders["tmp_dir"]}{filenames["basename"]}.fq {args["trimmomatic_opts"]}'
 aligning: >-
-  f'{programms["bwa"]} -t {args["threads"]} -M {args["ref_fasta"]} {" ".join(filenames["trim_galore_fastqs"])} | {programms["samblaster"]} -M -e -r -q --addMateTags | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}'
+  f'{programms["bwa"]} -t {args["threads"]} -M {args["ref_fasta"]} {" ".join(filenames["trim_galore_fastqs"])} > {folders["tmp_dir"]}0.sam && {programms["samblaster"]} -M -e -r -q --addMateTags -i {folders["tmp_dir"]}0.sam | {programms["samtools"]} view -@ {args["threads"]} -Sb - > {filenames["in_bam"]}'
 samtools_sort: >-
   f'{programms["samtools"]} sort -@ {args["threads"]} {filenames["in_bam"]} > {filenames["sorted_bam"]}'
 samtools_index: >-
