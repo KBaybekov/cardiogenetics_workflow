@@ -11,6 +11,7 @@ medgen:
   binaries:
     abra2: "-Xmx48G -jar /root/miniforge3/envs/genetico/share/abra2-2.24-1/abra2.jar"
     bcftools: "bcftools"
+    bwa: bwa mem
     cravat: "oc"
     fastqc: "fastqc"
     freebayes: "freebayes"
@@ -34,6 +35,7 @@ dell:
   binaries:
     abra2: "-Xmx48G -jar /home/researcher/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
     bcftools: "bcftools"
+    bwa: /home/data/Programms/BWA-MEME/bwa-meme mem
     cravat: "oc"
     fastqc: "fastqc"
     freebayes: "freebayes"
