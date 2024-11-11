@@ -9,7 +9,7 @@ medgen:
     qualimap: "qualimap"
     
   binaries:
-    abra2: "-Xmx48G -jar /root/miniforge3/envs/genetico/share/abra2-2.24-1/abra2.jar"
+    abra2: "java -Xmx48G -jar /root/miniforge3/envs/genetico/share/abra2-2.24-1/abra2.jar"
     bcftools: "bcftools"
     bwa: bwa mem
     cravat: "oc"
@@ -33,7 +33,7 @@ dell:
     trim_galore: "trim_galore"
     
   binaries:
-    abra2: "-Xmx48G -jar /home/researcher/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
+    abra2: "abra2"
     bcftools: "bcftools"
     bwa: /home/data/Programms/BWA-MEME/bwa-meme mem
     cravat: "oc"
