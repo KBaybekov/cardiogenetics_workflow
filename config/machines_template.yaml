@@ -33,7 +33,7 @@ dell:
     trim_galore: "trim_galore"
     
   binaries:
-    abra2: "abra2"
+    abra2: "java -Xmx64G -jar /home/researcher/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
     bcftools: "bcftools"
     bwa: /home/data/Programms/BWA-MEME/bwa-meme mem
     cravat: "oc"
