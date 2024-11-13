@@ -15,5 +15,4 @@ trimmomatic_opts: >-
 variant_frequency_threshold: >-
   0.15
 variant_filters: >-
-  "QUAL>18 && FORMAT/DP>16 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) ||
-  (FORMAT/AD[1:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && ((FORMAT/AD[0:1] >= 3) || (FORMAT/AD[1:1] >= 3))))"
+  "QUAL>18 && FORMAT/DP>16 && ((FORMAT/AD[0:1] / FORMAT/AD[0:0] > 0.2) || (FORMAT/AD[0:0] == 0 && FORMAT/AD[0:1] >= 3))"
