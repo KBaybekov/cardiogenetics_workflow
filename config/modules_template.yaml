@@ -140,7 +140,7 @@ annotation:
         annotation
   
   source_extensions:
-    ['reannotated.vcf','reannotated.vcf.gz']
+    ['.vcf','.vcf.gz']
   
   filenames:
     filename: >-
