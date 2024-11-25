@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# Usage:
+# excel_postprocessing.py cravat.tsv out.xlsx frequency_threshold [gene_panel] 
+
 import pandas as pd
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
@@ -117,7 +120,7 @@ def read_tsv(file):
     return data_df, header_df
 
 
-def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str, var_threshold:float):
+def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str, var_threshold:float, gene_panel:list=[]):
     """
     Создает 2 Excel-файла (один со всеми частотами, другой (клинический) - с частотами не более указанной).\n
     Файлы с двумя листами: один для данных, другой для шапки.
@@ -131,7 +134,7 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
         wb.save(filepath)
 
 
-def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str) -> dict:
+def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene_panel:list=[]) -> dict:
     add_varsome_column(data_df)
     # Перемещение большинства колонок 'Extra VCF Info, Original Input' в конец;  важных из Extra VCF Info - в начало
     important_cols = ['SRF', 'SRR', 'SAF', 'SAR']
@@ -153,7 +156,12 @@ def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str) -> d
             data_df.insert(alt_base_idx + 1, col, data_df.pop(col))
     # AF ставим всё же левее всех остальных
     data_df.insert(alt_base_idx + 1, 'Extra VCF INFO Annotations AF', data_df.pop('Extra VCF INFO Annotations AF'))
-    clinical_data_df = data_df[data_df['gnomAD Global AF'] <= var_threshold]
+    clinical_data_df = data_df[data_df['gnomAD Global AF'] <= var_threshold].reset_index(drop=True)
+    if gene_panel:
+        gene_panel_df = clinical_data_df[clinical_data_df['hugo'].isin(gene_panel)].reset_index(drop=True)
+        return {output_file:data_df,
+                output_file.replace('.xlsx', '_clinical.xlsx'):clinical_data_df,
+                output_file.replace('.xlsx', '_panel_clinical.xlsx'):gene_panel_df}
     return {output_file:data_df, output_file.replace('.xlsx', '_clinical.xlsx'):clinical_data_df}
 
 def add_varsome_column(data_df):
@@ -257,19 +265,21 @@ def main():
     """
     Основная функция. Читает входной TSV файл, преобразует его и сохраняет в Excel.
     """
-    if len(sys.argv) != 4:
-        print("Использование: script.py in.tsv out.xlsx var_threshold")
+    if len(sys.argv) not in [4,5]:
+        print("Использование: excel_postprocessing.py cravat.tsv out.xlsx frequency_threshold [gene_panel]")
         sys.exit(1)
 
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     var_threshold = float(sys.argv[3])
-
+    if len(sys.argv) == 5:
+        gene_panel = pd.read_excel(sys.argv[4])['Gene'].to_list()
+        
     # Чтение TSV файла
     data_df, header_df = read_tsv(input_file)
 
     # Создание Excel-файлов
-    create_excels(data_df, header_df, output_file, var_threshold)
+    create_excels(data_df=data_df, header_df=header_df, output_file=output_file, var_threshold=var_threshold, gene_panel=gene_panel)
 
 
 if __name__ == "__main__":
