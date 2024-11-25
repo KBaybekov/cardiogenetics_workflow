@@ -131,7 +131,11 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
     for filepath, df in dfs.items():
         wb = add_header_sheet(design_data_df(df), header_df)
         # Сохранение файла
-        wb.save(filepath)
+        try:
+            wb.save(filepath)
+        except ValueError:
+            print(f"Can't save {filepath}: too big!")
+            continue
 
 
 def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene_panel:list=[]) -> dict:
