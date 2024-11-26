@@ -107,8 +107,8 @@ def read_tsv(file):
     return data_df, header_df
 
 tsv = sys.argv[1]
-af = sys.argv[2]
-gene_panel = sys.argv[3]
+af = float(sys.argv[2])
+gene_panel = pd.read_excel(sys.argv[3])['Gene'].to_list()
 res = sys.argv[4]
 
 data, header = read_tsv(tsv)
