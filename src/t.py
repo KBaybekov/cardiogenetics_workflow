@@ -116,7 +116,7 @@ data, header = read_tsv(tsv)
 af_df = data[data['gnomAD Global AF'] <= af].reset_index(drop=True)
 panel_df = af_df[af_df['Gene'].isin(gene_panel)].reset_index(drop=True)
 
-outs = {data:res, af_df:res.replace('.tsv', '_clinical.tsv'), panel_df:res.replace('.tsv', '_panel.tsv')}
+outs = {res:data, res.replace('.tsv', '_clinical.tsv'):af_df, res.replace('.tsv', '_panel.tsv'):panel_df}
 
-for df, file in outs.items():
+for file,df in outs.items():
     df.to_csv(file, sep='\t')
