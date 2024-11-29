@@ -1,4 +1,5 @@
 import yaml
+import os
 
 def load_yaml(file_path:str, critical:bool = False, subsection:str = ''):
     """
@@ -32,3 +33,18 @@ def load_yaml(file_path:str, critical:bool = False, subsection:str = ''):
         if critical:
             raise FileNotFoundError(f"Не найден: {file_path}")
         return {}
+    
+def get_samples_in_dir(dir:str, extensions:tuple, empty_ok:bool=False):
+    """
+    Генерирует список файлов на основе включающих и исключающих образцов.
+    Выдаёт ошибку, если итоговый список пустой.
+
+    :param dir: Директория, где искать файлы.
+    :param extensions: Расширения файлов для поиска.
+    :return: Список путей к файлам.
+    """
+    # Ищем все файлы в директории с указанными расширениями
+    files = [os.path.join(dir, s) for s in os.listdir(dir) if s.endswith(extensions)]
+    if not files and not empty_ok:
+        raise FileNotFoundError("Образцы не найдены. Проверьте входные и исключаемые образцы, а также директорию с исходными файлами.")
+    return files
