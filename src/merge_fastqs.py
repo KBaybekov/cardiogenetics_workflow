@@ -14,5 +14,5 @@ fqs = get_samples_in_dir(dir=fastq_dir, extensions=(fq_extension))
 ids = list(set(['_'.join(os.path.basename(fq).split('_')[:num_name_elements]) for fq in fqs]))
 for id in ids:
     groups = {}
-    for direction in ['_1', '_2']:
+    for direction,substitute_direction in {'_R1_001':'_1', '_R2_001':'_2'}.items():
         os.system(f'cat {fastq_dir}{id}*{direction}{fq_extension} > {out_dir}{id}{direction}{fq_extension}')
