@@ -92,6 +92,8 @@ variant_calling:
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     abra_bam: |
       sample
+    bam_folder: |
+      os.path.dirname(sample)
     vcf_fb: |
       f"{folders['fb_dir']}{filenames['basename']}_fb.vcf.gz"
     vcf_dv: |
