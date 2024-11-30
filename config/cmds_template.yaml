@@ -45,7 +45,7 @@ merged_vcf_bgzip: >-
 merged_vcf_tabix: >-
   f'tabix -p vcf {filenames["vcf"]}'
 reannotation: >-
-  f"""bcftools annotate --rename-chrs {args["project_path"]}/data/GCF_000001405.40_GRCh38.p14_assembly_report.chrnames --threads {args["threads"]} -Oz -o {filenames["vcf"].replace("vcf.gz", "chr_reannotated.vcf.gz")} {filenames["vcf"]}"""
+  f"""{programms["bcftools"]} annotate --rename-chrs {args["project_path"]}/data/GCF_000001405.40_GRCh38.p14_assembly_report.chrnames --threads {args["threads"]} -Oz -o {filenames["vcf"].replace("vcf.gz", "chr_reannotated.vcf.gz")} {filenames["vcf"]}"""
 
 remove_tmp_sample_files_docker: |
   docker exec deep_variant rm -rf /tmp/intermediate_results_dir/
