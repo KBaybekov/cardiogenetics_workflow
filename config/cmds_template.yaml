@@ -35,7 +35,7 @@ fb_bgzip: >-
 fb_tabix: >-
   f'tabix -p vcf {filenames["vcf_fb"]}'
 deepvariant: >-
-  f'docker exec deep_variant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads={os.path.dirname(filenames["abra_bam"]).replace(folders["input_dir"],"/input/")}/{os.path.basename(filenames["abra_bam"])} --output_vcf=/output/{os.path.basename(filenames["vcf_dv"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_dv"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
+  f'docker exec deep_variant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads=/input/{os.path.basename(filenames["abra_bam"])} --output_vcf=/output/{os.path.basename(filenames["vcf_dv"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_dv"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
 vcf_intersection: >-
   f'{programms["bcftools"]} isec --threads {args["threads"]} -p {folders["tmp_dir"]}isec/ {filenames["vcf_dv"]} {filenames["vcf_fb"]}'
 vcf_filtering: >-
