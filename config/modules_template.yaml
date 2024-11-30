@@ -108,7 +108,8 @@ variant_calling:
       - pull_docker_dv
       - start_docker_dv
     sample_level:
-      - freebayes_parallel
+      #- freebayes_parallel
+      - freebayes
       - fb_bgzip
       - fb_tabix
       - deepvariant
