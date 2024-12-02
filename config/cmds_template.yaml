@@ -17,6 +17,10 @@ samtools_sort: >-
   f'{programms["samtools"]} sort -@ {args["threads"]} {folders["tmp_dir"]}1.sam | samtools view -@ {args["threads"]} -Sb > {filenames["sorted_bam"]}'
 samtools_index: >-
   f'{programms["samtools"]} index -@ {args["threads"]} {filenames["sorted_bam"]}'
+aligning_no_abra_no_samblaster: >-
+  f'{programms["bwa"]} -t {args["threads"]} -M {args["ref_fasta"]} {" ".join(filenames["trim_galore_fastqs"])} > {folders["tmp_dir"]}0.sam &&
+  {programms["samtools"]} sort -@ {args["threads"]} {folders["tmp_dir"]}0.sam | samtools view -@ {args["threads"]} -Sb > {filenames["no_abra_bam"]}'
+
 abra2: >-
   f'{programms["abra2"]} --log error --in {filenames["sorted_bam"]} --out {filenames["abra_bam"]} --ref {args["ref_fasta"]} --threads {args["threads"]} --tmpdir {folders["tmp_dir"]}'
 samtools_index_abra: >-
@@ -27,13 +31,15 @@ qualimap:
 #variant_calling
 #СНАЧАЛА КОЛЛИНГ, ПОТОМ МЕРДЖИНГ И В КОНЦЕ ФИЛЬТРАЦИЯ!
 freebayes: >-
-  f'{programms["freebayes"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'
+  f'{programms["freebayes"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'
 freebayes_parallel: >-
   f"""source activate freebayes && bash -c 'freebayes-parallel <(fasta_generate_regions.py {args["ref_fasta"]}.fai 100000) {args["threads"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["abra_bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'"""
 fb_bgzip: >-
   f'bgzip -@ {args["threads"]} {filenames["vcf_fb"].removesuffix(".gz")}'
 fb_tabix: >-
   f'tabix -p vcf {filenames["vcf_fb"]}'
+reannotation_no_dv_no_isec: >-
+  f"""{programms["bcftools"]} annotate --rename-chrs {args["project_path"]}/data/GCF_000001405.40_GRCh38.p14_assembly_report.chrnames --threads {args["threads"]} -Oz -o {filenames["vcf"].replace("vcf.gz", "chr_reannotated.vcf.gz")} {filenames["vcf_fb"]}"""
 deepvariant: >-
   f'docker exec deep_variant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads={filenames["bam_folder"].replace(folders["input_dir"], "/input/")}/{os.path.basename(filenames["abra_bam"])} --output_vcf=/output/{os.path.basename(filenames["vcf_dv"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_dv"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
 vcf_intersection: >-

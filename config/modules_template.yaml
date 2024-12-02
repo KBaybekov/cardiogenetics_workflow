@@ -39,6 +39,8 @@ align:
       ' '.join([f"{folders['tmp_dir']}{filenames['basename']}_{i}P.fq" for i in [1,2]])
     abra_bam: |
       f"{folders['bam_dir']}{filenames['basename']}_abra2.bam"
+    no_abra_bam: |
+      f"{folders['bam_dir']}{filenames['basename']}.bam"
     in_bam: |
       f"{folders['tmp_dir']}primary.bam"
     sorted_bam: |
@@ -48,12 +50,13 @@ align:
     before_batch:
     sample_level:
       - trim_galore
-      - aligning
-      - samtools_sort
-      - samtools_index
-      - abra2
-      - samtools_index_abra
-      - qualimap
+      - #aligning
+      - #samtools_sort
+      - #samtools_index
+      - #abra2
+      - #samtools_index_abra
+      - #qualimap
+      - aligning_no_abra_no_samblaster
       - remove_tmp_sample_files
     after_batch:
       - fastqc_raw
@@ -90,7 +93,7 @@ variant_calling:
       os.path.basename(sample).split('.')[0]
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
-    abra_bam: |
+    bam: |
       sample
     bam_folder: |
       os.path.dirname(sample)
@@ -107,23 +110,24 @@ variant_calling:
 
   commands:
     before_batch:
-      - pull_docker_dv
-      - start_docker_dv
+      - #pull_docker_dv
+      - #start_docker_dv
     sample_level:
       #- freebayes_parallel
       - freebayes
       - fb_bgzip
       - fb_tabix
-      - deepvariant
-      - vcf_intersection
-      - vcf_filtering
-      - merged_vcf_bgzip
-      - merged_vcf_tabix
-      - reannotation
-      - remove_tmp_sample_files_docker
+      - reannotation_no_dv_no_isec
+      - #deepvariant
+      - #vcf_intersection
+      - #vcf_filtering
+      - #merged_vcf_bgzip
+      - #merged_vcf_tabix
+      - #reannotation
+      - #remove_tmp_sample_files_docker
     after_batch:
-      - stop_docker_dv
-      - remove_tmp_folder
+      - #stop_docker_dv
+      - #remove_tmp_folder
   
   result_dir: >-
     vcf
@@ -143,7 +147,7 @@ annotation:
         annotation
   
   source_extensions:
-    ['.vcf','.vcf.gz']
+    ['chr_reannotated.vcf','chr_reannotated.vcf.gz']
   
   filenames:
     filename: >-
