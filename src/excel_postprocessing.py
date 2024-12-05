@@ -134,7 +134,8 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
         try:
             wb.save(filepath)
         except ValueError:
-            print(f"Can't save {filepath}: too big!")
+            print(f"Can't save {filepath}: too big!. TSV format will be used")
+            df.to_csv(filepath, index=False, sep='\t')
             continue
 
 
