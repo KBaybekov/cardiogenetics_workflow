@@ -126,7 +126,7 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
     Файлы с двумя листами: один для данных, другой для шапки.
     """
 
-    dfs = reform_data(data_df, var_threshold, output_file)
+    dfs = reform_data(data_df, var_threshold, output_file, gene_panel)
 
     for filepath, df in dfs.items():
         wb = add_header_sheet(design_data_df(df), header_df)
@@ -138,7 +138,7 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
             continue
 
 
-def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene_panel:list=[]) -> dict:
+def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene_panel:list) -> dict:
     add_varsome_column(data_df)
     # Перемещение большинства колонок 'Extra VCF Info, Original Input' в конец;  важных из Extra VCF Info - в начало
     important_cols = ['SRF', 'SRR', 'SAF', 'SAR']
@@ -276,6 +276,7 @@ def main():
     input_file = sys.argv[1]
     output_file = sys.argv[2]
     var_threshold = float(sys.argv[3])
+    gene_panel = []
     if len(sys.argv) == 5:
         gene_panel = pd.read_excel(sys.argv[4])['Gene'].to_list()
         
