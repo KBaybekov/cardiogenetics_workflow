@@ -129,14 +129,12 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
     dfs = reform_data(data_df, var_threshold, output_file, gene_panel)
 
     for filepath, df in dfs.items():
-        wb = add_header_sheet(design_data_df(df), header_df)
-        # Сохранение файла
-        try:
+        if len(df) <= 1048576:
+            wb = add_header_sheet(design_data_df(df), header_df)
+            # Сохранение файла
             wb.save(filepath)
-        except ValueError:
-            print(f"Can't save {filepath}: too big!. TSV format will be used")
+        else:
             df.to_csv(filepath, index=False, sep='\t')
-            continue
 
 
 def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene_panel:list) -> dict:
