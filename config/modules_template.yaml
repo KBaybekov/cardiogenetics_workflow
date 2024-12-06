@@ -94,7 +94,7 @@ variant_calling:
     basename: |
       f"{filenames['filename'].split('_')[0]}_{filenames['filename'].split('_')[1]}"
     bam: |
-      sample
+      os.path.normpath(sample)
     bam_folder: |
       os.path.dirname(sample)
     vcf_fb: |
