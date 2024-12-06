@@ -134,7 +134,7 @@ def create_excels(data_df:pd.DataFrame, header_df:pd.DataFrame, output_file:str,
             # Сохранение файла
             wb.save(filepath)
         else:
-            df.to_csv(filepath, index=False, sep='\t')
+            df.to_csv(filepath.replace('.xlsx', '.tsv'), index=False, sep='\t')
 
 
 def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene_panel:list) -> dict:
