@@ -34,8 +34,8 @@ freebayes: >-
   f'{programms["freebayes"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'
 vcf_filtering_n_reannotation_no_dv_no_isec: >-
   f"""{programms["bcftools"]} annotate --rename-chrs {args["project_path"]}/data/GCF_000001405.40_GRCh38.p14_assembly_report.chrnames --threads {args["threads"]} -Ov -o {folders["tmp_dir"]}unfiltered_reannotated.vcf {filenames["vcf_fb"]} &&
-  {programms["bcftools"]} filter --include {args["variant_filters"]} --threads {args["threads"]} {folders["tmp_dir"]}unfiltered_reannotated.vcf > {filenames["unzipped_vcf"].replace(".vcf", "_fb_chr_reannotated.vcf)} &&
-  bgzip -@ {args["threads"]} {filenames["unzipped_vcf"].replace(".vcf", "_fb_chr_reannotated.vcf)} && tabix -p vcf {filenames["vcf"].replace(".vcf.gz", "_fb_chr_reannotated.vcf.gz)} &&
+  {programms["bcftools"]} filter --include {args["variant_filters"]} --threads {args["threads"]} {folders["tmp_dir"]}unfiltered_reannotated.vcf > {filenames["unzipped_vcf"].replace(".vcf", "_fb_chr_reannotated.vcf")} &&
+  bgzip -@ {args["threads"]} {filenames["unzipped_vcf"].replace(".vcf", "_fb_chr_reannotated.vcf")} && tabix -p vcf {filenames["vcf"].replace(".vcf.gz", "_fb_chr_reannotated.vcf.gz")} &&
   rm {folders["tmp_dir"]}unfiltered_reannotated.vcf"""
 freebayes_parallel: >-
   f"""source activate freebayes && bash -c 'freebayes-parallel <(fasta_generate_regions.py {args["ref_fasta"]}.fai 100000) {args["threads"]} -f {args["ref_fasta"]} {args["freebayes_filters"]} {filenames["bam"]} > {filenames["vcf_fb"].removesuffix(".gz")}'"""
