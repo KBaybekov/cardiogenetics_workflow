@@ -47,6 +47,8 @@ deepvariant: >-
   f'docker exec deep_variant /opt/deepvariant/bin/run_deepvariant --model_type={args["seq_mode"]} --ref=/ref/{os.path.basename(args["ref_fasta"])} --reads={filenames["bam"].replace(os.path.dirname(filenames["bam"]), "/input")} --output_vcf=/output/{os.path.basename(filenames["vcf_dv"])} --output_gvcf=/output/{os.path.basename(filenames["gvcf_dv"])} --intermediate_results_dir /tmp/intermediate_results_dir --num_shards={args["threads"]}'
 vcf_intersection: >-
   f'{programms["bcftools"]} isec --threads {args["threads"]} -p {folders["tmp_dir"]}isec/ {filenames["vcf_dv"]} {filenames["vcf_fb"]}'
+mv_unique_vars_files: >-
+  f'mv {folders["tmp_dir"]}isec/0000.vcf {filenames["uniq_dv"]} && mv {folders["tmp_dir"]}isec/0001.vcf {filenames["uniq_fb"]}'
 vcf_filtering: >-
   f'{programms["bcftools"]} filter --include {args["variant_filters"]} --threads {args["threads"]} {folders["tmp_dir"]}isec/0003.vcf > {filenames["unzipped_vcf"]}'
 merged_vcf_bgzip: >-

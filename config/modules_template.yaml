@@ -83,6 +83,8 @@ variant_calling:
         vcf/Freebayes
       dv_dir:
         vcf/DeepVariant
+      isec_dir:
+        vcf/unique
       
   
   source_extensions:
@@ -101,6 +103,10 @@ variant_calling:
       f"{folders['fb_dir']}{filenames['basename']}_fb.vcf.gz"
     vcf_dv: |
       f"{folders['dv_dir']}{filenames['basename']}_dv.vcf.gz"
+    uniq_fb: |
+      f"{folders['isec_dir']}{filenames['basename']}_uniqie_fb.vcf"
+    uniq_dv: |
+      f"{folders['isec_dir']}{filenames['basename']}_uniqie_dv.vcf"
     gvcf_dv: |
       f"{folders['dv_dir']}{filenames['basename']}_dv.gvcf.gz"
     vcf: |
@@ -110,24 +116,25 @@ variant_calling:
 
   commands:
     before_batch:
-      #- pull_docker_dv
-      #- start_docker_dv
+      - pull_docker_dv
+      - start_docker_dv
     sample_level:
       #- freebayes_parallel
       - freebayes
       - fb_bgzip
       - fb_tabix
-      - vcf_filtering_n_reannotation_no_dv_no_isec
-      #- deepvariant
-      #- vcf_intersection
-      #- vcf_filtering
-      #- merged_vcf_bgzip
-      #- merged_vcf_tabix
-      #- reannotation
-      #- remove_tmp_sample_files_docker
+      #- vcf_filtering_n_reannotation_no_dv_no_isec
+      - deepvariant
+      - vcf_intersection
+      - mv_unique_vars_files
+      - vcf_filtering
+      - merged_vcf_bgzip
+      - merged_vcf_tabix
+      - reannotation
+      - remove_tmp_sample_files_docker
     after_batch:
-      #- stop_docker_dv
-      #- remove_tmp_folder
+      - stop_docker_dv
+      - remove_tmp_folder
   
   result_dir: >-
     vcf
