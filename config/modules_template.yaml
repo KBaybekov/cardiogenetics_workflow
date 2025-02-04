@@ -55,12 +55,12 @@ align:
       - samtools_index
       - abra2
       - samtools_index_abra
-      - qualimap
+      #- qualimap
       #- aligning_no_abra_no_samblaster
       - remove_tmp_sample_files
     after_batch:
-      - fastqc_raw
-      - multiqc
+      #- fastqc_raw
+      #- multiqc
       - remove_tmp_folder
 
   result_dir: >-
