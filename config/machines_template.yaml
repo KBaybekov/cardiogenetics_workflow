@@ -27,9 +27,9 @@ dell:
   envs:
     cravat: "cravat"
     qualimap: "qualimap"
-    #abra2: "abra2"
-    #samblaster: "samblaster"
-    #trim_galore: "trim_galore"
+    abra2: "abra2"
+    samblaster: "samblaster"
+    trim_galore: "trim_galore"
     
   binaries:
     abra2: "java -Xmx64G -jar /home/researcher/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
@@ -41,8 +41,8 @@ dell:
     freebayes: "freebayes"
     multiqc: "multiqc"
     qualimap: "qualimap"
-    samblaster: "/home/researcher/miniforge3/envs/samblaster/bin/samblaster"
+    samblaster: "samblaster"
     samtools: "samtools"
-    trim_galore: "/home/researcher/miniforge3/envs/trim_galore/bin/trim_galore"
+    trim_galore: "trim_galore"
     trimmomatic: "/usr/share/java/trimmomatic-0.39.jar"
   env_command: "conda run -n env binary"
