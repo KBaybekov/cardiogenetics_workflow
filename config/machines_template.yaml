@@ -26,7 +26,6 @@ medgen:
 dell:
   envs:
     cravat: "cravat"
-    trim_galore: "trim_galore"
     qualimap: "qualimap"
     abra2: "abra2"
     samblaster: "samblaster"
@@ -35,7 +34,8 @@ dell:
   binaries:
     abra2: "java -Xmx64G -jar /home/researcher/miniforge3/envs/abra2/share/abra2-2.24-3/abra2.jar"
     bcftools: "bcftools"
-    bwa: /home/data/Programms/BWA-MEME/bwa-meme mem
+    bwa: /home/data/Programms/bwa-mem2/bwa-mem2 mem
+    #bwa: /home/data/Programms/BWA-MEME/bwa-meme mem
     cravat: "oc"
     fastqc: "fastqc"
     freebayes: "freebayes"

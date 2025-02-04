@@ -120,17 +120,17 @@ variant_calling:
       - start_docker_dv
     sample_level:
       #- freebayes_parallel
-      - freebayes
-      - fb_bgzip
-      - fb_tabix
+      #- freebayes
+      #- fb_bgzip
+      #- fb_tabix
       #- vcf_filtering_n_reannotation_no_dv_no_isec
       - deepvariant
-      - vcf_intersection
-      - mv_unique_vars_files
-      - vcf_filtering
-      - merged_vcf_bgzip
-      - merged_vcf_tabix
-      - reannotation
+      #- vcf_intersection
+      #- mv_unique_vars_files
+      #- vcf_filtering
+      #- merged_vcf_bgzip
+      #- merged_vcf_tabix
+      #- reannotation
       - remove_tmp_sample_files_docker
     after_batch:
       - stop_docker_dv
