@@ -45,4 +45,4 @@ dell:
     samtools: "samtools"
     trim_galore: "trim_galore"
     trimmomatic: "/usr/share/java/trimmomatic-0.39.jar"
-  env_command: "conda run -n env binary"
+  env_command: "mamba run -n env binary"
