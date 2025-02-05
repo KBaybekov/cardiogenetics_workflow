@@ -158,7 +158,8 @@ def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene
         if col in data_df.columns.values:
             data_df.insert(alt_base_idx + 1, col, data_df.pop(col))
     # AF ставим всё же левее всех остальных
-    data_df.insert(alt_base_idx + 1, 'Extra VCF INFO Annotations AF', data_df.pop('Extra VCF INFO Annotations AF'))
+    if 'Extra VCF INFO Annotations AF' in data_df.columns.values:
+        data_df.insert(alt_base_idx + 1, 'Extra VCF INFO Annotations AF', data_df.pop('Extra VCF INFO Annotations AF'))
     clinical_data_df = data_df[(data_df['gnomAD Global AF'] <= var_threshold) | (data_df['gnomAD Global AF'].isna())].reset_index(drop=True)
     if gene_panel:
         gene_panel_df = clinical_data_df[clinical_data_df['Gene'].isin(gene_panel)].reset_index(drop=True)
