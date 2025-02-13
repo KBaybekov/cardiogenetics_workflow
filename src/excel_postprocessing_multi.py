@@ -37,7 +37,7 @@ def parse_cli_args():
     # Основные аргументы с описаниями из YAML
     parser.add_argument('-i', '--input_dir', required=True, type=str, help=description['input_dir'])
     parser.add_argument('-o', '--output_dir', required=True, type=str, help=description['output_dir'])
-    parser.add_argument('-f', '--frequency_threshold', default=0, type=float, help=description['frequency_threshold'])
+    parser.add_argument('-f', '--frequency_threshold', default=0.15, type=float, help=description['frequency_threshold'])
     parser.add_argument('-gp', '--gene_panel', default='', type=str, help=description['gene_panel'])
     
     # Парсим аргументы
@@ -47,6 +47,70 @@ def parse_cli_args():
     args = vars(args)  # Преобразуем объект Namespace в словарь
 
     return args
+
+
+def pivot_df_on_callers(sample:str, tsv_files:list) -> tuple:
+    # получаем список таблиц, относящихся к образцу
+    s_tsvs =  [tsv for tsv in tsv_files if sample in os.path.basename(tsv)]
+    s_dfs = {}
+    merged_df = ''
+    tmp_len = 0
+    
+    for tsv in s_tsvs:
+        caller = os.path.basename(tsv).split('_')[1]
+        if '.' in caller:
+            caller = caller.split('.')[0]
+
+        # получаем дф со всех таблиц; в списке дф на первом месте будет дф, содержащий расшифровки заголовков
+        data_df, header_df = read_tsv(tsv)
+        data_df['caller'] = caller
+        data_df['idx'] = data_df['Chrom'].astype(str) + '_' + \
+                            data_df['Position'].astype(str) + '_' + \
+                            data_df['Ref Base'].astype(str) + '_' + \
+                            data_df['Alt Base'].astype(str) + '_' + \
+                            data_df['VCF Info Zygosity'].astype(str)
+        
+        data_df = data_df.loc[:, ~data_df.columns.duplicated()]
+        _, wdth = data_df.shape
+        s_dfs[caller] = [header_df, data_df, wdth]
+
+    max_width = max(value[2] for value in s_dfs.values())
+    for caller, vals in s_dfs.items():
+        if vals[2] == max_width:
+            header_df = vals[0].copy()
+            merged_df = vals[1].copy()
+            tmp_len += len(merged_df)
+            del s_dfs[caller]
+            break
+
+    for caller, vals in s_dfs.items():
+        data_df = vals[1]
+        tmp_len += len(data_df)
+        data_df = data_df.reindex(columns=merged_df.columns, fill_value='')
+        data_df = data_df[merged_df.columns]
+        merged_df = pd.concat([merged_df, data_df], ignore_index=True)
+
+    # Создаём сводную таблицу (pivot table) на основе merged_df:
+    # - index="idx": Каждая уникальная строка `idx` становится индексом.
+    # - columns="caller": Уникальные значения из `caller` становятся отдельными колонками.
+    # - values="Position": Используем колонку `Position` в качестве значений.
+    # - aggfunc="count": Считаем количество записей в каждой группе (idx, caller).
+    # 
+    # Это создаёт таблицу, где для каждого `idx` и `caller` указано, сколько раз встречается `Position`.
+    #
+    # После этого:
+    # - .notna() → Преобразует все непустые значения в `True`, а `NaN` в `False`.
+    # - .astype(bool) → Конвертирует результат в булев формат (True/False), указывая наличие данных.
+    pivot_df = merged_df.pivot_table(index="idx", columns="caller", values="Position", aggfunc="count").notna().astype(bool)
+    df_unique = merged_df.drop_duplicates(subset="idx").drop(columns=["caller"])  # Убираем 'd', чтобы не было лишних колонок
+    merged_df = df_unique.merge(pivot_df, on="idx", how="left")
+
+    # Перемещаем pivot-колонки в начало; убираем idx
+    cols_order = list(pivot_df.columns) + [col for col in df_unique.columns if col != "idx"]
+    merged_df = merged_df[cols_order]
+
+    return (merged_df, header_df)
+
 
 def read_tsv(file):
     """
@@ -195,7 +259,7 @@ def reform_data(data_df:pd.DataFrame, var_threshold:float, output_file:str, gene
     data_df.insert(alt_base_idx + 1, 'Extra VCF INFO Annotations AF', data_df.pop('Extra VCF INFO Annotations AF'))
     #data_df.fillna(value='', inplace=True)
     # фильтруем по частоте, оставляя редкие или не аннотированные варианты
-    clinical_data_df = data_df[(data_df['gnomAD Global AF'] <= var_threshold) | (data_df['gnomAD Global AF'].isna())].reset_index(drop=True)
+    clinical_data_df = data_df[(data_df['gnomAD4 Global AF'] <= var_threshold) | (data_df['gnomAD4 Global AF'].isna())].reset_index(drop=True)
     if gene_panel:
         gene_panel_df = clinical_data_df[clinical_data_df['Gene'].isin(gene_panel)].reset_index(drop=True)
         return {output_file:data_df,
@@ -308,59 +372,24 @@ def main():
     args = parse_cli_args()
 
     input_dir = args['input_dir']
-    output_file = args['output_dir']
+    output_dir = args['output_dir']
     var_threshold = args['frequency_threshold']
     gene_panel_file = args['gene_panel']
     if gene_panel_file:
         gene_panel = pd.read_excel(gene_panel_file)['Gene'].to_list()
+    else:
+        gene_panel = gene_panel_file
         
     # получаем список таблиц в папке    
     tsvs = get_samples_in_dir(dir=input_dir, extensions=('.tsv'))
-
     # получаем список образцов
     samples = sorted(list(set(os.path.basename(s).split('_')[0] for s in tsvs)))
-    #ch_d(samples)
+
     for sample in samples:
-        # получаем список таблиц, относящихся к образцу
-        s_tsvs =  [tsv for tsv in tsvs if sample in os.path.basename(tsv)]
-        s_dfs = {}
-        merged_df = ''
-        tmp_len = 0
-        
-        for tsv in s_tsvs:
-            caller = os.path.basename(tsv).split('_')[1]
-            # получаем дф со всех таблиц; в списке дф на первом месте будет дф, содержащий расшифровки заголовков
-            data_df, header_df = read_tsv(tsv)
-            data_df['caller'] = caller
-            data_df = data_df.loc[:, ~data_df.columns.duplicated()]
-            _, wdth = data_df.shape
-            s_dfs[caller] = [header_df, data_df, wdth]
-
-        max_width = max(value[2] for value in s_dfs.values())
-        for caller, vals in s_dfs.items():
-            if vals[2] == max_width:
-                header_df = vals[0].copy()
-                merged_df = vals[1].copy()
-                tmp_len += len(merged_df)
-                del s_dfs[caller]
-                break
-
-        for caller, vals in s_dfs.items():
-            data_df = vals[1]
-            tmp_len += len(data_df)
-            data_df = data_df.reindex(columns=merged_df.columns, fill_value='')
-            data_df = data_df[merged_df.columns]
-            merged_df = pd.concat([merged_df, data_df], ignore_index=True)
-
-        ch_d(merged_df['caller'].unique())
-
-
-    
-    # Чтение TSV файла
-    data_df, header_df = read_tsv(input_file)
-
-    # Создание Excel-файлов
-    create_excels(data_df=data_df, header_df=header_df, output_file=output_file, var_threshold=var_threshold, gene_panel=gene_panel)
+        data_df, header_df = pivot_df_on_callers(sample=sample, tsv_files=tsvs)
+        # Создание Excel-файлов
+        output_file = f'{output_dir}{os.sep}{sample}.xlsx'
+        create_excels(data_df=data_df, header_df=header_df, output_file=output_file, var_threshold=var_threshold, gene_panel=gene_panel)
 
 
 if __name__ == "__main__":
