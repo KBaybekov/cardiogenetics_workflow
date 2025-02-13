@@ -153,3 +153,9 @@ cython_debug/
 config/t.py
 src/t.py
 src/t.py
+tmp/1405_29.sh
+tmp/no_alt_masked.sh
+tmp/no_alt.sh
+tmp/primary.sh
+tmp/t.py
+tmp/t2t.sh
